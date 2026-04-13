@@ -19,11 +19,8 @@
 		AA000010000000000000001A /* DifficultyBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000010000000000000001B /* DifficultyBadge.swift */; };
 		AA000011000000000000001A /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000011000000000000001B /* EmptyStateView.swift */; };
 		AA000012000000000000001A /* TopicBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012000000000000001B /* TopicBadge.swift */; };
-		AA000013000000000000001A /* CardBackView_Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000013000000000000001B /* CardBackView_Deck.swift */; };
-		AA000014000000000000001A /* CardFrontView_Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000014000000000000001B /* CardFrontView_Deck.swift */; };
 		AA000015000000000000001A /* DeckProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000015000000000000001B /* DeckProgressBar.swift */; };
 		AA000016000000000000001A /* DeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000016000000000000001B /* DeckView.swift */; };
-		AA000017000000000000001A /* FlashcardView_Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000017000000000000001B /* FlashcardView_Deck.swift */; };
 		AA000018000000000000001A /* CardBackView_Flashcard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000018000000000000001B /* CardBackView_Flashcard.swift */; };
 		AA000019000000000000001A /* CardFrontView_Flashcard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000019000000000000001B /* CardFrontView_Flashcard.swift */; };
 		AA000020000000000000001A /* FlashcardView_Flashcard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000020000000000000001B /* FlashcardView_Flashcard.swift */; };
@@ -46,6 +43,14 @@
 		AA000037000000000000001A /* model_evaluation.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000037000000000000001B /* model_evaluation.json */; };
 		AA000038000000000000001A /* nlp_transformers.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000038000000000000001B /* nlp_transformers.json */; };
 		AA000039000000000000001A /* statistics.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000039000000000000001B /* statistics.json */; };
+		AA000040000000000000001A /* llms_genai.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000040000000000000001B /* llms_genai.json */; };
+		AA000041000000000000001A /* reinforcement_learning.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000041000000000000001B /* reinforcement_learning.json */; };
+		AA000042000000000000001A /* causal_inference.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000042000000000000001B /* causal_inference.json */; };
+		AA000043000000000000001A /* leadership.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000043000000000000001B /* leadership.json */; };
+		AA000044000000000000001A /* python_algorithms.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000044000000000000001B /* python_algorithms.json */; };
+		AA000200000000000000001A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA000200000000000000001B /* XCTest.framework */; };
+		AA000201000000000000001A /* FlashcardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000201000000000000001B /* FlashcardTests.swift */; };
+		AA000202000000000000001A /* TopicAndStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000202000000000000001B /* TopicAndStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,11 +66,8 @@
 		AA000010000000000000001B /* DifficultyBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyBadge.swift; sourceTree = "<group>"; };
 		AA000011000000000000001B /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		AA000012000000000000001B /* TopicBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicBadge.swift; sourceTree = "<group>"; };
-		AA000013000000000000001B /* CardBackView_Deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CardBackView.swift; path = CardBackView.swift; sourceTree = "<group>"; };
-		AA000014000000000000001B /* CardFrontView_Deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CardFrontView.swift; path = CardFrontView.swift; sourceTree = "<group>"; };
 		AA000015000000000000001B /* DeckProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckProgressBar.swift; sourceTree = "<group>"; };
 		AA000016000000000000001B /* DeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckView.swift; sourceTree = "<group>"; };
-		AA000017000000000000001B /* FlashcardView_Deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FlashcardView.swift; path = FlashcardView.swift; sourceTree = "<group>"; };
 		AA000018000000000000001B /* CardBackView_Flashcard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CardBackView.swift; path = CardBackView.swift; sourceTree = "<group>"; };
 		AA000019000000000000001B /* CardFrontView_Flashcard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CardFrontView.swift; path = CardFrontView.swift; sourceTree = "<group>"; };
 		AA000020000000000000001B /* FlashcardView_Flashcard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FlashcardView.swift; path = FlashcardView.swift; sourceTree = "<group>"; };
@@ -88,7 +90,16 @@
 		AA000037000000000000001B /* model_evaluation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = model_evaluation.json; sourceTree = "<group>"; };
 		AA000038000000000000001B /* nlp_transformers.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nlp_transformers.json; sourceTree = "<group>"; };
 		AA000039000000000000001B /* statistics.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = statistics.json; sourceTree = "<group>"; };
+		AA000040000000000000001B /* llms_genai.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = llms_genai.json; sourceTree = "<group>"; };
+		AA000041000000000000001B /* reinforcement_learning.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = reinforcement_learning.json; sourceTree = "<group>"; };
+		AA000042000000000000001B /* causal_inference.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = causal_inference.json; sourceTree = "<group>"; };
+		AA000043000000000000001B /* leadership.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = leadership.json; sourceTree = "<group>"; };
+		AA000044000000000000001B /* python_algorithms.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = python_algorithms.json; sourceTree = "<group>"; };
 		AA000050000000000000001B /* DSFlash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DSFlash.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA000200000000000000001B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		AA000201000000000000001B /* FlashcardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardTests.swift; sourceTree = "<group>"; };
+		AA000202000000000000001B /* TopicAndStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicAndStoreTests.swift; sourceTree = "<group>"; };
+		AA000203000000000000001B /* DSFlashTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DSFlashTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +122,7 @@
 				AA000073000000000000001B /* Data */,
 				AA000074000000000000001B /* Extensions */,
 				AA000075000000000000001B /* Views */,
+				AA000204000000000000001B /* DSFlashTests */,
 				AA000076000000000000001B /* Frameworks */,
 				AA000077000000000000001B /* Products */,
 			);
@@ -150,14 +162,19 @@
 			isa = PBXGroup;
 			children = (
 				AA000030000000000000001B /* ab_testing.json */,
+				AA000042000000000000001B /* causal_inference.json */,
 				AA000031000000000000001B /* computer_vision.json */,
 				AA000032000000000000001B /* data_engineering.json */,
 				AA000033000000000000001B /* deep_learning.json */,
 				AA000034000000000000001B /* feature_engineering.json */,
+				AA000043000000000000001B /* leadership.json */,
+				AA000040000000000000001B /* llms_genai.json */,
 				AA000035000000000000001B /* ml_fundamentals.json */,
 				AA000036000000000000001B /* mlops.json */,
 				AA000037000000000000001B /* model_evaluation.json */,
 				AA000038000000000000001B /* nlp_transformers.json */,
+				AA000044000000000000001B /* python_algorithms.json */,
+				AA000041000000000000001B /* reinforcement_learning.json */,
 				AA000039000000000000001B /* statistics.json */,
 			);
 			path = Cards;
@@ -199,11 +216,8 @@
 		AA000082000000000000001B /* Deck */ = {
 			isa = PBXGroup;
 			children = (
-				AA000013000000000000001B /* CardBackView_Deck.swift */,
-				AA000014000000000000001B /* CardFrontView_Deck.swift */,
 				AA000015000000000000001B /* DeckProgressBar.swift */,
 				AA000016000000000000001B /* DeckView.swift */,
-				AA000017000000000000001B /* FlashcardView_Deck.swift */,
 			);
 			path = Deck;
 			sourceTree = "<group>";
@@ -251,6 +265,7 @@
 			isa = PBXGroup;
 			children = (
 				AA000029000000000000001B /* SwiftData.framework */,
+				AA000200000000000000001B /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -259,8 +274,18 @@
 			isa = PBXGroup;
 			children = (
 				AA000050000000000000001B /* DSFlash.app */,
+				AA000203000000000000001B /* DSFlashTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		AA000204000000000000001B /* DSFlashTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA000201000000000000001B /* FlashcardTests.swift */,
+				AA000202000000000000001B /* TopicAndStoreTests.swift */,
+			);
+			path = DSFlashTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -283,6 +308,23 @@
 			productReference = AA000050000000000000001B /* DSFlash.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AA000210000000000000001A /* DSFlashTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA000220000000000000001A /* Build configuration list for PBXNativeTarget "DSFlashTests" */;
+			buildPhases = (
+				AA000211000000000000001A /* Sources */,
+				AA000212000000000000001A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA000214000000000000001A /* PBXTargetDependency */,
+			);
+			name = DSFlashTests;
+			productName = DSFlashTests;
+			productReference = AA000203000000000000001B /* DSFlashTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -295,6 +337,10 @@
 				TargetAttributes = {
 					AA000090000000000000001A = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					AA000210000000000000001A = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = AA000090000000000000001A;
 					};
 				};
 			};
@@ -312,6 +358,7 @@
 			projectRoot = "";
 			targets = (
 				AA000090000000000000001A /* DSFlash */,
+				AA000210000000000000001A /* DSFlashTests */,
 			);
 		};
 /* End PBXProject section */
@@ -322,19 +369,42 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA000030000000000000001A /* ab_testing.json in Resources */,
+				AA000042000000000000001A /* causal_inference.json in Resources */,
 				AA000031000000000000001A /* computer_vision.json in Resources */,
 				AA000032000000000000001A /* data_engineering.json in Resources */,
 				AA000033000000000000001A /* deep_learning.json in Resources */,
 				AA000034000000000000001A /* feature_engineering.json in Resources */,
+				AA000043000000000000001A /* leadership.json in Resources */,
+				AA000040000000000000001A /* llms_genai.json in Resources */,
 				AA000035000000000000001A /* ml_fundamentals.json in Resources */,
 				AA000036000000000000001A /* mlops.json in Resources */,
 				AA000037000000000000001A /* model_evaluation.json in Resources */,
 				AA000038000000000000001A /* nlp_transformers.json in Resources */,
+				AA000044000000000000001A /* python_algorithms.json in Resources */,
+				AA000041000000000000001A /* reinforcement_learning.json in Resources */,
 				AA000039000000000000001A /* statistics.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		AA000213000000000000001A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA000095000000000000001A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA000090000000000000001A;
+			remoteInfo = DSFlash;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		AA000214000000000000001A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA000090000000000000001A /* DSFlash */;
+			targetProxy = AA000213000000000000001A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AA000091000000000000001A /* Sources */ = {
@@ -353,11 +423,8 @@
 				AA000010000000000000001A /* DifficultyBadge.swift in Sources */,
 				AA000011000000000000001A /* EmptyStateView.swift in Sources */,
 				AA000012000000000000001A /* TopicBadge.swift in Sources */,
-				AA000013000000000000001A /* CardBackView_Deck.swift in Sources */,
-				AA000014000000000000001A /* CardFrontView_Deck.swift in Sources */,
 				AA000015000000000000001A /* DeckProgressBar.swift in Sources */,
 				AA000016000000000000001A /* DeckView.swift in Sources */,
-				AA000017000000000000001A /* FlashcardView_Deck.swift in Sources */,
 				AA000018000000000000001A /* CardBackView_Flashcard.swift in Sources */,
 				AA000019000000000000001A /* CardFrontView_Flashcard.swift in Sources */,
 				AA000020000000000000001A /* FlashcardView_Flashcard.swift in Sources */,
@@ -372,7 +439,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA000211000000000000001A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000201000000000000001A /* FlashcardTests.swift in Sources */,
+				AA000202000000000000001A /* TopicAndStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXFrameworksBuildPhase section (Tests) */
+		AA000212000000000000001A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000200000000000000001A /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section (Tests) */
 
 /* Begin XCBuildConfiguration section */
 		AA000102000000000000001A /* Debug */ = {
@@ -550,6 +637,52 @@
 			};
 			name = Release;
 		};
+		AA000221000000000000001A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dsflash.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DSFlash.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DSFlash";
+			};
+			name = Debug;
+		};
+		AA000222000000000000001A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dsflash.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DSFlash.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DSFlash";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -567,6 +700,15 @@
 			buildConfigurations = (
 				AA000102000000000000001A /* Debug */,
 				AA000103000000000000001A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA000220000000000000001A /* Build configuration list for PBXNativeTarget "DSFlashTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA000221000000000000001A /* Debug */,
+				AA000222000000000000001A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

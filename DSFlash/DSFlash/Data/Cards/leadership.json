@@ -1,0 +1,82 @@
+[
+  {
+    "id": "lead-001",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Intermediate",
+    "question": "How do you prioritise competing ML projects when resources are constrained?",
+    "answer": "Prioritise by expected business impact (revenue, cost savings, user value) divided by estimated effort and risk. Use a scoring matrix: impact × confidence ÷ effort. Align with business strategy and ensure stakeholder buy-in. Sequence projects that unlock future work or build reusable infrastructure first.",
+    "explanation": "In practice, senior DS leaders use frameworks like ICE (Impact, Confidence, Ease) or RICE (Reach, Impact, Confidence, Effort). The key mistake is optimising for technical novelty rather than business value. Stakeholder alignment is critical — a technically excellent project with no executive support will fail in production. Infrastructure investments (feature stores, evaluation frameworks) often have multiplier effects on future projects and should be weighted accordingly. Time-to-impact matters: a small quick win that ships in 2 weeks may be more valuable than a perfect model delivered in 6 months."
+  },
+  {
+    "id": "lead-002",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Intermediate",
+    "question": "How do you communicate model performance and uncertainty to non-technical stakeholders?",
+    "answer": "Translate metrics into business outcomes (e.g., 'this model saves 200 hours/month of analyst work'), use concrete examples and analogies, show confidence intervals in terms of business risk, and be upfront about failure modes. Avoid jargon. Use visualisations over tables.",
+    "explanation": "The biggest failure mode is presenting model accuracy percentages without context — 95% accuracy means something very different depending on the base rate and cost of errors. Frame uncertainty as business risk: 'our estimate has a ±20% range, which means the actual saving is between $400k and $600k.' Storytelling with concrete examples (show the model correctly classifying real cases) builds intuition better than aggregate metrics. Always address the 'so what' — what decision should stakeholders make based on this information."
+  },
+  {
+    "id": "lead-003",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Senior",
+    "question": "What does it mean to build a data-driven culture and what are the biggest obstacles?",
+    "answer": "A data-driven culture means decisions at all levels are informed by data, hypotheses are tested rigorously, and intuition is validated rather than blindly followed. Obstacles: data quality and accessibility, lack of statistical literacy, HiPPO (Highest Paid Person's Opinion) bias, incentive structures that punish failed experiments.",
+    "explanation": "Building this culture requires investment at multiple levels: tooling (self-serve analytics, A/B testing platforms), training (experimentation and statistics literacy for PMs and engineers), and leadership modelling (executives citing data and running experiments themselves). The hardest obstacle is cultural: organisations often say they are data-driven but override data when it conflicts with intuition. The antidote is creating psychological safety for experiments to fail, celebrating learning from failed tests, and separating 'did the experiment work?' from 'did the team succeed?'"
+  },
+  {
+    "id": "lead-004",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Intermediate",
+    "question": "How do you handle a situation where a deployed model begins degrading in performance?",
+    "answer": "Immediately assess the severity and business impact. Identify whether the cause is data drift, upstream data pipeline failures, or distribution shift. If severe, roll back or fall back to a simpler model. Conduct root-cause analysis, implement monitoring and alerts, retrain as needed, and document lessons learned.",
+    "explanation": "Model degradation is inevitable in production — the world changes. A clear runbook for degradation incidents is essential before deployment. Key metrics to monitor: data drift (input distribution), prediction drift (output distribution), business KPIs correlated with model quality, and upstream data freshness. Rollback should be fast and rehearsed. Post-incident reviews should focus on systemic improvements: better monitoring, more robust features, scheduled retraining, or canary deployments that catch degradation before full rollout."
+  },
+  {
+    "id": "lead-005",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Senior",
+    "question": "How do you structure a data science team and what are the trade-offs between centralised vs. embedded models?",
+    "answer": "Centralised DS teams have consistent standards, career development, and economies of scale, but can become bottlenecks and lose context. Embedded (product-aligned) teams have faster iteration and deeper product context, but risk inconsistent practices, duplication, and isolated career paths. Most mature orgs use a hybrid.",
+    "explanation": "The hub-and-spoke model (centralised CoE with embedded pods) attempts to capture both benefits: shared infrastructure and standards at the centre, product speed at the edges. The decision depends on company stage and culture. Early-stage: centralised works (small team, broad scope). Growth-stage: embed where product decisions are frequent. Mature: hybrid with platform/infrastructure centralised and application teams embedded. Cross-team dependencies, data governance, and model ownership are the key coordination challenges in any structure."
+  },
+  {
+    "id": "lead-006",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Intermediate",
+    "question": "What is the role of ethical considerations in DS/ML projects and how do you operationalise responsible AI?",
+    "answer": "Responsible AI requires proactive assessment of bias, fairness, privacy, interpretability, and misuse potential. Operationalise it through: pre-project impact assessments, bias audits across demographic subgroups, explainability requirements for high-stakes decisions, data minimisation, and clear human-in-the-loop policies.",
+    "explanation": "Responsible AI is not just a compliance checkbox — unaddressed harms create legal, reputational, and ethical risks. Fairness metrics (demographic parity, equalised odds, individual fairness) are often in tension with each other and with accuracy, requiring explicit trade-off decisions. GDPR and emerging AI regulations mandate explainability for automated decisions. Practically: embed ethics reviews into the project lifecycle (not just at the end), include diverse stakeholders in design, and establish model risk committees for high-impact deployments. The EU AI Act introduces mandatory requirements by risk tier starting in 2025."
+  },
+  {
+    "id": "lead-007",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Senior",
+    "question": "How do you evaluate the business ROI of a machine learning initiative?",
+    "answer": "ROI = (business value generated - total cost) / total cost. Business value includes revenue uplift, cost reduction, and risk mitigation. Total cost includes data infrastructure, model development, deployment, maintenance, and opportunity cost. Compare to the counterfactual — what would happen without the ML system.",
+    "explanation": "Quantifying ML ROI is notoriously difficult because the counterfactual is unobservable. Best practices: run controlled experiments (A/B tests) to measure incremental lift, attribute revenue to model decisions using causal methods, and track proxy metrics continuously. Common pitfalls: attributing all downstream revenue to the model (ignore base rate), ignoring maintenance and monitoring costs (typically 20-40% of build cost per year), and not accounting for the cost of mistakes and incidents. A model that is 95% accurate but causes $1M in errors in the 5% failure case may be net negative."
+  },
+  {
+    "id": "lead-008",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Intermediate",
+    "question": "What strategies do you use to influence without authority when driving DS adoption across an organisation?",
+    "answer": "Build credibility through quick wins and demonstrated impact. Make insights accessible and actionable for stakeholders. Find internal champions and power users. Show before pitching — a working prototype beats a slide deck. Align DS work with existing OKRs and stakeholder pain points.",
+    "explanation": "DS teams often must influence product, engineering, and business teams who have competing priorities and different incentives. The most effective tactic is anchoring DS work to problems stakeholders already own and care about. Documentation and shared notebooks lower the barrier for others to engage with data. Communities of practice (cross-functional data guilds) spread skills and create pull rather than push. Avoid framing DS as a service that takes requests — position it as a collaborative function with strategic input. Track and celebrate the team's business impact visibly."
+  },
+  {
+    "id": "lead-009",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Senior",
+    "question": "How do you manage and develop a team of data scientists with varying seniority levels?",
+    "answer": "Calibrate autonomy to seniority: juniors need structured tasks with clear scope and frequent feedback; seniors need ownership of problems with strategic latitude. Use regular 1:1s and growth conversations. Pair juniors with seniors on projects. Set clear expectations via levelling frameworks and OKRs.",
+    "explanation": "The most common management mistake is either micromanaging seniors (stunting growth and reducing motivation) or under-supporting juniors (leading to floundering and poor output). Clear levelling rubrics help individuals understand what is expected at their level and what growth to the next level requires. Stretch assignments — slightly beyond current capability — are the fastest path to growth. DS careers also have a deep technical track (principal/staff) and a management track, and good managers make space for both. Retention of senior talent depends heavily on autonomy, interesting problems, and peer community."
+  },
+  {
+    "id": "lead-010",
+    "topic": "Leadership & Strategy",
+    "difficulty": "Intermediate",
+    "question": "How do you set up a DS project for success from day one?",
+    "answer": "Define success metrics upfront (what does 'good' look like?). Agree on the baseline (what are we beating?). Ensure data availability and quality before modelling begins. Align stakeholders on timeline and scope. Establish how results will be evaluated and deployed. Plan for maintenance from the start.",
+    "explanation": "Most DS projects fail not because of modelling mistakes but because of misaligned expectations, poor data, or lack of a clear path to production. The first conversation with a stakeholder should establish: what decision will this model inform, who owns the decision, what is the acceptable false positive/negative rate, and what happens at deployment. Setting a strong baseline early (rule-based, simple heuristic) gives a reference point and often reveals that ML isn't needed. Documentation of data sources, assumptions, and known limitations should begin at kickoff, not at the end."
+  }
+]
