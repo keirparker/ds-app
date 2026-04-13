@@ -1,0 +1,98 @@
+[
+  {
+    "id": "ab-001",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Intermediate",
+    "question": "Walk me through designing an A/B test from hypothesis to shipping decision.",
+    "answer": "Steps: (1) Define hypothesis and primary metric; (2) Define guardrail metrics; (3) Determine MDE (minimum detectable effect); (4) Calculate sample size for desired power (80%) at α=0.05; (5) Randomise (user/session/request-level); (6) Run for minimum duration; (7) Analyse; (8) Ship/reject decision.",
+    "explanation": "Critical details: randomisation unit should match the analysis unit to avoid SUTVA violations. Run for a minimum of one business cycle (usually one week) to capture weekly seasonality. Don't stop early — sequential testing frameworks handle peeking correctly. Pre-register the primary metric and analysis plan before seeing data to prevent p-hacking. Document the ramp percentage, holdback plan, and rollback criteria. Post-ship: monitor guardrail metrics for 2-4 weeks. The ship decision should be business-driven — statistically significant doesn't mean practically significant; consider effect size."
+  },
+  {
+    "id": "ab-002",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Intermediate",
+    "question": "What is the minimum detectable effect (MDE) and how does it influence sample size?",
+    "answer": "MDE is the smallest effect size you want your experiment to have 80% power to detect. Smaller MDE requires larger sample size: n ∝ σ²/MDE². Halving the MDE quadruples the required sample size.",
+    "explanation": "In practice: MDE should be chosen based on business significance, not statistical convenience. If a 0.5% conversion rate improvement is worth shipping (business decision), set MDE = 0.5%. Setting MDE = 0.1% to be 'safe' quadruples the experiment duration unnecessarily. High-traffic features can detect 0.1% effects in days; low-traffic features may need months to detect 5% effects. Always report both the effect size and confidence interval in results — a statistically significant 0.01% improvement may not be worth engineering effort, while a non-significant 2% improvement in a low-traffic test may be worth investigating further."
+  },
+  {
+    "id": "ab-003",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "What is p-hacking? How do you guard against it in a corporate experimentation platform?",
+    "answer": "P-hacking: repeatedly checking experiment results and stopping once p < 0.05 — this inflates the false positive rate far above the nominal α because each check is an additional test opportunity.",
+    "explanation": "With 20 peeks at an ongoing experiment at α=0.05, the true false positive rate can reach ~30%. Mitigations: (1) Sequential testing frameworks (alpha spending functions: O'Brien-Fleming, Holm) that distribute the α budget across planned interim analyses; (2) Always-valid p-values (mSPRT, SPRT) — permit continuous monitoring at any time without false positive inflation; (3) Fixed-horizon testing with no peeking enforced by the platform; (4) Pre-registered analysis plans with a fixed stopping date; (5) Bayesian stopping rules with pre-specified posterior probability threshold. Modern experimentation platforms (Netflix, Spotify, Airbnb's Experimentation platform) implement sequential testing natively to enable early stopping."
+  },
+  {
+    "id": "ab-004",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "What is a novelty effect in A/B testing and how do you detect it?",
+    "answer": "Novelty effect: users engage more with a new feature simply because it's new — the effect attenuates over time as novelty wears off. This inflates treatment estimates, especially for UI changes.",
+    "explanation": "Detection: plot the treatment effect over time — if the effect decreases week-over-week and is concentrated among existing users (not new users), it's likely novelty. New users, seeing the feature for the first time, have no novelty bias. Compare treatment effect for new users vs returning users: if the effect is much larger for returning users, novelty is present. Solutions: (1) Extend experiment duration until effect stabilises; (2) Pre-enrol users before treatment begins and exclude early days; (3) Analyse only users with sufficient tenure in the test. Similarly, 'primacy effect' is the reverse: initial aversion to change that later resolves — requires similar long-run analysis."
+  },
+  {
+    "id": "ab-005",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "What is CUPED (Controlled-experiment Using Pre-Experiment Data)?",
+    "answer": "CUPED reduces variance in metric estimates by using pre-experiment data as a covariate. Adjusted metric: Y_cuped = Y − θ(X − E[X]) where X is the pre-experiment covariate and θ = Cov(Y,X)/Var(X). This removes variance correlated with pre-experiment behaviour.",
+    "explanation": "Effect: variance reduction of (1 − ρ²) where ρ is the correlation between the pre and post-experiment metric. If ρ=0.8, CUPED reduces variance by 36%, equivalent to increasing sample size by 56%. This means experiments reach significance faster (shorter duration) or can detect smaller effects with the same duration — very valuable in low-traffic or low-variance experiments. First published by Microsoft Research (2013). Now standard at Netflix, LinkedIn, Airbnb, Booking.com. Works because randomisation ensures the covariate is balanced in expectation — the adjustment only reduces noise, not bias. Generalisable to any sufficiently correlated pre-experiment metric."
+  },
+  {
+    "id": "ab-006",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "When would you use a multi-armed bandit instead of a fixed A/B test?",
+    "answer": "A multi-armed bandit (MAB) adaptively allocates more traffic to better-performing variants in real-time (explore-exploit trade-off), rather than the fixed 50/50 split of A/B tests. Use when: cost of exposure to inferior variants is high (medical treatments, personalisation), or when you need to optimise quickly during a short window.",
+    "explanation": "MAB advantages: lower regret (fewer users exposed to inferior variants), faster convergence to winner. Disadvantages: statistical inference is harder (can't use standard t-tests; need Thompson Sampling or UCB confidence bounds); biases accumulate (early random fluctuations can lead traffic to a suboptimal variant); doesn't account for novelty/seasonality. Use A/B test when: you need clean statistical inference; experiment runs long enough that regret minimisation is less critical; you're comparing multiple variants with interactions. Contextual bandits extend MABs by conditioning allocation on user context — the standard approach for recommendation system personalisation and ad serving."
+  },
+  {
+    "id": "ab-007",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "How do you handle network effects and interference in experiments (SUTVA violations)?",
+    "answer": "SUTVA (Stable Unit Treatment Value Assumption): each unit's outcome depends only on its own treatment, not others'. Violations occur when: two-sided marketplace (Lyft — driver in treatment pool affects control riders), social networks (seeing a treated friend's post affects control users), shared resources (algorithm changes affect all users via shared models).",
+    "explanation": "Solutions: (1) Cluster randomisation — randomise by geo, city, or time instead of user; users within a cluster all get the same treatment (eliminates within-cluster interference). Reduces effective sample size; requires cluster-robust standard errors. (2) Graph-based randomisation (LinkedIn) — partition social graph, assign clusters. (3) Holdout by time — run treatment in alternating time periods (switchback experiments); controls for trend but not carryover effects. (4) Network clustering algorithms (Ego-network clusters). Uber/Lyft use geolocation-based holdouts (cities or hexagonal grid cells) to isolate marketplace experiments."
+  },
+  {
+    "id": "ab-008",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "What is experiment segmentation? How do you detect heterogeneous treatment effects?",
+    "answer": "Heterogeneous treatment effects (HTE): the treatment effect varies across subgroups. Segmentation analysis: compute treatment effects within pre-specified subgroups (platform, country, user segment, tenure). Causal machine learning: use methods like Causal Forests or T-Learner/S-Learner/X-Learner to estimate individual-level treatment effects.",
+    "explanation": "Danger: running many subgroup analyses inflates false positives (multiple comparisons). Best practice: (1) Pre-specify which subgroups you'll analyse (avoid fishing); (2) Apply multiple comparisons correction; (3) Treat subgroup results as hypothesis-generating, not confirmatory — follow up with a targeted experiment on the identified subgroup. Causal forests (Wager & Athey) estimate heterogeneous effects non-parametrically and provide confidence intervals. HTEs are valuable for personalisation: if one segment benefits and another is harmed, you can target only the segment that benefits — improving both ethics and business outcomes."
+  },
+  {
+    "id": "ab-009",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "What are guardrail metrics and how do you define them?",
+    "answer": "Guardrail metrics: metrics that must not degrade significantly even if the primary metric improves. They protect the overall user experience and business health. Examples: page load time, crash rate, customer support tickets, revenue per user, retention/churn.",
+    "explanation": "Guardrails serve as veto conditions: a test that improves clicks by 5% but increases load time by 20% would be rejected. Defining guardrails: identify metrics the organisation cares about beyond the immediate test objective; set directional constraints (no statistically significant decrease) and magnitude thresholds (latency cannot increase by more than 10ms P95). Two types: (1) Org-level guardrails: apply to every test (performance, error rate, revenue); (2) Test-specific guardrails: defined based on what the change might affect. Multiple testing: since you're checking many guardrails, apply Bonferroni correction to ensure FWER is controlled across all guardrail checks."
+  },
+  {
+    "id": "ab-010",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "Explain interleaving experiments as used in search and recommendation systems.",
+    "answer": "Interleaving: for each query/session, generate recommendation lists from both models A and B, then merge them into a single interleaved list (Team Draft or Balanced interleaving). User interactions (clicks) are attributed back to the originating model. Whichever model's items get more clicks 'wins'.",
+    "explanation": "Advantages over A/B: (1) Direct comparison on the same users seeing the same context — removes user heterogeneity variance entirely; (2) 100-1000× more sensitive — can detect smaller differences with far less traffic; (3) Faster decisions (days vs weeks). Disadvantages: cannot estimate absolute metric levels; only provides relative comparison; works best for ranked lists where position-based attribution is meaningful. Netflix, Spotify, and Google Search use interleaving for fast model selection. Typically used as a pre-screen: interleave to quickly identify the better model, then run a full A/B test on the winner for absolute metric measurement."
+  },
+  {
+    "id": "ab-011",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "How do you handle a metric trade-off in experiment analysis (e.g. revenue goes up, engagement goes down)?",
+    "answer": "A metric trade-off requires explicit business judgement on the relative value of each metric. Options: (1) Composite metric: create a single score that weights revenue and engagement by business value (OEC — Overall Evaluation Criterion); (2) Constraint approach: maximise revenue subject to engagement not decreasing by more than X%; (3) Defer to stakeholders with explicit trade-off documentation.",
+    "explanation": "No statistical method resolves a business trade-off — it is fundamentally a values question. The role of the data scientist: quantify the trade-off precisely (revenue up $X per user, engagement down Y minutes per day), model long-term implications (will engagement decline eventually hurt revenue?), and present clearly to decision-makers. Building an OEC (Overall Evaluation Criterion) requires organisational alignment on the relative weight of each metric — this is often the hardest part. Netflix's primary metric is 'viewing hours' which implicitly combines engagement signals. Amazon's 'long-term free cash flow' is their North Star that guides metric trade-off resolution."
+  },
+  {
+    "id": "ab-012",
+    "topic": "Experimentation & A/B Testing",
+    "difficulty": "Senior",
+    "question": "What is a sequential testing framework and why does it enable safe early stopping?",
+    "answer": "Sequential testing frameworks (mSPRT, group sequential tests) maintain type I error control (α) while allowing continuous monitoring or planned interim analyses. They compute 'always valid p-values' or confidence sequences that are valid at any stopping time.",
+    "explanation": "Classic t-test p-values are only valid at the pre-specified sample size — peeking and stopping early inflates false positive rate. Sequential tests solve this with alpha spending functions that distribute the α budget across looks: earlier looks spend less α (require stronger evidence to stop); later looks spend more. mSPRT (mixture Sequential Probability Ratio Test) produces an always-valid p-value: if you stop when p < α at any point, your false positive rate is guaranteed ≤ α. This is critical for: stopping losing experiments early (ethical/business); stopping winning experiments early to capture value faster. Implemented at Netflix (Sequential A/B Testing), Microsoft (ExP), Spotify, LinkedIn."
+  }
+]

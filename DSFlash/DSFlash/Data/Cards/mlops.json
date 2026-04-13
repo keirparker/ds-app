@@ -1,0 +1,122 @@
+[
+  {
+    "id": "mlops-001",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is a feature store? Name two production solutions and their key properties.",
+    "answer": "A feature store centralises feature computation, storage, and serving with: offline store (historical features for training, e.g. BigQuery/S3), online store (low-latency serving at inference, e.g. Redis/DynamoDB), and transformation logic. Examples: Feast (open-source, any backend), Tecton (managed, real-time streaming).",
+    "explanation": "Tecton: supports streaming + batch + on-demand features, <10ms latency serving, integrates with Spark/Flink. Feast: open-source, cloud-agnostic, primarily batch, community-maintained. Vertex AI Feature Store (Google): managed, autoscaling online serving, BigQuery integration. Databricks Feature Store: tight MLflow integration, Delta Lake backend, unity catalogue governance. Key properties to evaluate: (1) Online serving latency (p99); (2) Streaming feature support; (3) Point-in-time correct training set generation; (4) Integration with existing data infrastructure; (5) Governance and access control. Feature stores are most valuable when multiple teams share features — otherwise they can be over-engineering."
+  },
+  {
+    "id": "mlops-002",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Intermediate",
+    "question": "Explain the difference between model training, model serving, and model monitoring.",
+    "answer": "Training: process of learning model parameters from data — typically a batch process, compute-intensive, runs periodically. Serving: deploying the trained model to answer inference requests — latency-sensitive, must handle production traffic. Monitoring: ongoing observation of model behaviour in production to detect performance degradation.",
+    "explanation": "Training: offline, uses historical data, produces model artefacts. Infrastructure: GPUs, Spark clusters. Serving: online, low-latency (ms), high-availability. Infrastructure: REST/gRPC endpoints, containers, autoscaling. Monitoring: watches input data distribution, output distribution, and downstream metrics. Each has different SLAs: training can fail and retry; serving must have 99.9%+ uptime; monitoring must alert within minutes of issues. A common mistake: over-investing in training infrastructure and under-investing in serving and monitoring, which is where production failures actually occur. MLOps maturity: Level 0 (manual), Level 1 (training automation), Level 2 (full CI/CD pipeline)."
+  },
+  {
+    "id": "mlops-003",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is model drift? Distinguish between data drift, concept drift, and prediction drift.",
+    "answer": "Data drift: the distribution of input features P(X) changes — model receives inputs it wasn't trained on. Concept drift: the relationship between features and target P(Y|X) changes — the model's learnt function becomes stale. Prediction drift: the distribution of model outputs P(Ŷ) changes — a downstream symptom of either of the above.",
+    "explanation": "Data drift detection: statistical tests (KS test, PSI — Population Stability Index) comparing feature distributions between training and production. PSI > 0.25 typically signals significant shift. Concept drift: harder to detect — requires ground truth labels, which arrive with delay. Monitor proxy metrics (click-through rate changes, downstream business metrics) or use unlabelled drift detectors (ADWIN, DDM). Prediction drift: cheapest to monitor (no labels needed) — alert if output distribution shifts significantly. Response strategies: trigger retraining, fallback to simpler model, alert for manual investigation. Drift is inevitable — design systems with scheduled retraining and automated drift detection from day one."
+  },
+  {
+    "id": "mlops-004",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "How would you architect a CI/CD pipeline for ML models?",
+    "answer": "ML CI/CD pipeline: (1) Source control trigger (git push); (2) Data validation (Great Expectations/TFDV — schema, distribution checks); (3) Unit tests on feature engineering code; (4) Training job on validated data; (5) Model evaluation (performance vs champion model on held-out set); (6) Model registration in model registry if evaluation passes; (7) Automated deployment to staging; (8) Integration tests; (9) Gated deployment to production (canary/blue-green).",
+    "explanation": "Key differences from software CI/CD: ML pipelines are data-dependent — code passing tests doesn't guarantee model quality; data validation and model evaluation gates are unique to ML. Tools: MLflow (experiment tracking, model registry), DVC (data versioning), Weights & Biases (experiment tracking), Kubeflow Pipelines or Airflow (orchestration), BentoML/Seldon/TorchServe (serving). Continuous Training (CT): trigger retraining on schedule or data drift detection, not just code changes. The pipeline should produce reproducible artefacts: pinned data versions, code commits, dependencies, and hyperparameters."
+  },
+  {
+    "id": "mlops-005",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "Explain blue-green deployment vs canary deployment for ML model rollouts.",
+    "answer": "Blue-green: maintain two identical production environments (blue = current, green = new). Switch 100% of traffic from blue to green instantly. Easy rollback by switching back. Canary: gradually ramp new model from 1% → 5% → 25% → 100% of traffic, monitoring metrics at each stage and rolling back if they degrade.",
+    "explanation": "Blue-green: zero-downtime deployment, instant full rollback, requires double infrastructure. Best for: simple services, when a clean cut-over is needed, or when partial traffic split is operationally complex. Canary: limits blast radius — only 1% of users are affected by a bad model; allows real-world validation at small scale before full rollout. Best for ML: lets you observe actual production metrics (not just offline evaluation) before committing. Requires: traffic splitting infrastructure (Kubernetes Istio, AWS ALB weighted target groups), real-time metric monitoring, automated rollback triggers. Most ML deployments use canary with automated guardrail checks."
+  },
+  {
+    "id": "mlops-006",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is a model registry? What metadata should it store?",
+    "answer": "A model registry is a centralised repository for tracking model versions, their metadata, and lifecycle stage (staging → production → archived). Metadata: model artefact location, training dataset version, evaluation metrics, hyperparameters, git commit hash, feature schema, serving requirements (memory, latency), approval workflow status.",
+    "explanation": "Key capabilities: (1) Versioning — every trained model is a versioned artefact with full provenance; (2) Stage promotion — explicit workflow for moving models through staging → production → archived; (3) Lineage — links model version to training run, data version, and code version; (4) Access control — role-based permissions for who can promote to production; (5) Comparison — side-by-side metric comparison of model versions. Tools: MLflow Model Registry (open-source), Weights & Biases Model Registry, Vertex AI Model Registry, Seldon Deploy, BentoML. The registry is the 'source of truth' for what is currently in production and enables auditable, reproducible deployments."
+  },
+  {
+    "id": "mlops-007",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "How do you scale model serving? Compare batch, real-time, and streaming inference.",
+    "answer": "Batch inference: run predictions on large datasets offline (nightly job), store results in a DB — lowest latency overhead, highest throughput, simplest. Real-time inference: synchronous prediction on a single request (<100ms SLA) — requires always-on servers, autoscaling. Streaming inference: predictions computed as events flow through a stream (Kafka consumer) — sub-second latency, event-driven, stateful computation possible.",
+    "explanation": "Batch: ideal for pre-computing recommendations, credit scores, risk scores where results can be pre-computed and are valid for hours/days. Real-time: necessary for fraud detection, autocomplete, ad serving where context is request-time. Streaming: for features computed on real-time events (user just added item to cart, trigger inference). Scaling real-time serving: horizontal scaling (multiple replicas behind a load balancer), autoscaling (HPA in Kubernetes), model optimisation (quantisation, distillation, TensorRT), batching requests (dynamic batching in Triton Inference Server), caching for repeated requests. GPU instances for large models; CPU for small models (often cheaper at high QPS)."
+  },
+  {
+    "id": "mlops-008",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What are SLOs and SLAs in the context of an ML serving system?",
+    "answer": "SLO (Service Level Objective): internal target for system reliability/performance (e.g. p99 latency < 100ms, availability ≥ 99.9%). SLA (Service Level Agreement): external contract with customers specifying guaranteed performance, with penalties for breach.",
+    "explanation": "ML-specific SLOs: (1) Latency: p50/p95/p99 inference latency (tail latency matters — 1% of requests at p99 affects real users); (2) Throughput: requests per second capacity; (3) Availability: uptime %; (4) Accuracy SLO: model performance must stay above a minimum threshold (rare but emerging in ML contracts). Error budget: SLO of 99.9% uptime = 8.7 hours of allowed downtime/year. Model serving adds unique SLOs not in standard software: model quality (detect when accuracy drops below threshold) and feature freshness (feature store data must be < N minutes stale). Define SLOs before launch; instrument everything to measure them; use error budgets to guide reliability investment."
+  },
+  {
+    "id": "mlops-009",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "Describe how you would detect and respond to a model performance degradation in production.",
+    "answer": "Detection: monitor input feature distribution (PSI, KS test), output distribution, and business proxy metrics in real-time. Alert when distributions shift significantly or proxy metrics degrade beyond threshold. Confirm with ground truth labels when available (with delay).",
+    "explanation": "Layered monitoring: (1) Infrastructure layer: error rate, latency, throughput — immediate, no ML knowledge needed; (2) Prediction layer: output distribution shift, confidence scores distribution; (3) Data layer: input feature PSI, missing rate changes, schema violations; (4) Business layer: downstream metrics (CTR, conversion) — the ultimate signal. Response protocol: minor drift → schedule retraining; significant drift → trigger immediate retraining; catastrophic degradation → rollback to champion model, page on-call engineer. Turnaround time: automated retraining pipeline should produce a new model within hours of alert. Shadow the retrained model first, then promote. Tools: Evidently AI, WhyLogs, Arize AI, Fiddler, Aporia."
+  },
+  {
+    "id": "mlops-010",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is model quantisation? Compare INT8, FP16, and FP32.",
+    "answer": "Quantisation reduces model weight precision from FP32 (32-bit float) to lower bit-widths: FP16 (16-bit float), BF16 (16-bit bfloat), INT8 (8-bit integer). Lower precision → smaller model size, faster inference, lower memory — with some accuracy loss.",
+    "explanation": "FP32: full precision, maximum accuracy, baseline. FP16: 2× smaller, 2× faster on tensor cores, slight accuracy loss; limited exponent range causes numerical issues for large activations. BF16: same exponent range as FP32, truncated mantissa — more numerically stable than FP16, preferred for training. INT8: 4× smaller than FP32, 2-4× faster on integer hardware, more accuracy loss — typically requires calibration (collect activation statistics) or Quantisation-Aware Training (QAT). GPTQ, AWQ (for LLMs): 4-bit and 2-bit quantisation with near-FP16 quality. Rule of thumb: FP16/BF16 for serving large models with GPU; INT8 for CPU deployment; 4-bit for running LLMs on consumer hardware."
+  },
+  {
+    "id": "mlops-011",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "Explain ONNX. What problem does it solve in the MLOps stack?",
+    "answer": "ONNX (Open Neural Network Exchange) is an open format for representing ML models as a computational graph with standardised operators. It allows a model trained in one framework (PyTorch, TensorFlow) to be deployed in another runtime (ONNX Runtime, TensorRT, OpenVINO).",
+    "explanation": "Problem solved: framework fragmentation. Training teams use PyTorch; mobile teams need CoreML/TFLite; inference teams may prefer ONNX Runtime for CPU efficiency or TensorRT for GPU throughput. Without ONNX: custom conversion code for each pair of frameworks. With ONNX: train in PyTorch → export to ONNX → optimise and deploy with any ONNX-compatible runtime. ONNX Runtime applies graph optimisations (operator fusion, constant folding) for 2-10× speedup over native PyTorch inference. TensorRT converts ONNX to highly optimised CUDA kernels for NVIDIA GPUs (layer fusion, kernel auto-tuning). Key limitation: not all PyTorch operations are ONNX-exportable — dynamic control flow and custom ops require workarounds."
+  },
+  {
+    "id": "mlops-012",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is an ML platform and what components does it include?",
+    "answer": "An ML platform is an integrated system that covers the full ML lifecycle: data access, feature engineering, experiment tracking, model training (orchestration, compute), model evaluation, model registry, model serving, and monitoring. Examples: Databricks, Vertex AI, SageMaker, internal platforms at Google, Meta, Uber.",
+    "explanation": "Core components: (1) Data layer — data catalogue, feature store, dataset versioning (DVC/Delta); (2) Development — notebooks, managed compute (GPU clusters), experiment tracking (MLflow, W&B); (3) Training — orchestration (Kubeflow, Airflow), distributed training, hyperparameter tuning; (4) Model management — registry, A/B testing framework; (5) Serving — real-time endpoints, batch inference, streaming; (6) Monitoring — drift detection, data quality, alerting. Build vs buy: internal platforms at large companies (Google Vertex, Meta FBLearner, Twitter Cortex, Uber Michelangelo) are justified at scale; most companies should use managed cloud platforms or Databricks. The primary ROI of a platform is reducing time-to-production and enabling sharing of features and models across teams."
+  },
+  {
+    "id": "mlops-013",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "How do you ensure reproducibility in ML experiments at scale?",
+    "answer": "Reproducibility requires fixing all sources of randomness and environment variation: (1) Seed all randomness (Python random, NumPy, PyTorch/TF, CUDA); (2) Version data (DVC, Delta Lake snapshots, dataset hashes); (3) Version code (git commit); (4) Version environment (Docker container); (5) Log all hyperparameters; (6) Use a deterministic training pipeline.",
+    "explanation": "Full reproducibility stack: git commit hash (code) + DVC/dataset hash (data) + Docker image SHA (environment) + MLflow run ID (hyperparameters + metrics) → together uniquely identify a training run. CUDA non-determinism: GPU parallel operations can produce different floating-point results across runs — torch.use_deterministic_algorithms(True) enforces determinism at a 5-15% speed cost. Data shuffling: use a fixed seed and ensure the same shuffle order. In distributed training: operation ordering across GPUs introduces non-determinism — gradient accumulation may reduce this. Perfect reproducibility is hard; 'statistical reproducibility' (results within standard deviation of the original) is the practical target for most teams."
+  },
+  {
+    "id": "mlops-014",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is Kubernetes and why is it used for ML serving infrastructure?",
+    "answer": "Kubernetes (K8s) is a container orchestration platform that automates deployment, scaling, and management of containerised applications. For ML serving: each model is packaged as a Docker container and deployed as a K8s Deployment with auto-scaling, health checks, rolling updates, and resource isolation.",
+    "explanation": "ML-specific K8s use cases: (1) Horizontal Pod Autoscaler (HPA) — scale serving replicas based on CPU/GPU/custom metrics (requests per second); (2) Resource limits — guarantee GPU allocation per serving pod; (3) Rolling deployments — update models with zero downtime; (4) Multi-model serving — isolate different models in separate pods with independent scaling; (5) Istio service mesh — canary rollouts, traffic splitting for model A/B tests. Kubeflow runs ML training jobs (TFJob, PyTorchJob) on K8s. Managed K8s (GKE, EKS, AKS) removes cluster management overhead. Key trade-off: K8s has steep learning curve and operational overhead — justified for large teams with many models; smaller teams may prefer managed serving (SageMaker, Vertex AI Endpoints)."
+  },
+  {
+    "id": "mlops-015",
+    "topic": "MLOps & Deployment",
+    "difficulty": "Senior",
+    "question": "What is technical debt in ML systems? How do you manage it?",
+    "answer": "ML technical debt includes: hidden feedback loops (model outputs affect future training data), undeclared consumers (other systems depend on model outputs without formal contracts), data dependencies (brittle feature pipelines), pipeline jungle (spaghetti of ad-hoc transformations), dead experimental code left in production.",
+    "explanation": "Sculley et al. (Google, 2015) 'Hidden Technical Debt in Machine Learning Systems' is the canonical reference. ML debt compounds faster than software debt because data distribution changes amplify code issues. Management: (1) Modular pipelines with clear interfaces (feature stores define data contracts); (2) Regular pipeline audits — remove unused features and code paths; (3) Automated testing for data quality and model outputs; (4) Design training-serving symmetry (same feature code in both); (5) Document data dependencies and consumers; (6) Limit feature count — each feature is a liability (maintenance, drift, compatibility). Allocate 20-30% of team capacity to debt reduction, not just new features."
+  }
+]

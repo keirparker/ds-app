@@ -1,0 +1,122 @@
+[
+  {
+    "id": "de-001",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between a star schema and a snowflake schema in a data warehouse?",
+    "answer": "Star schema: central fact table connected directly to denormalised dimension tables (one hop from fact to dimension). Snowflake schema: dimension tables are further normalised into sub-dimension tables (multiple hops). Star schema is wider but faster to query; snowflake is more normalised but requires more joins.",
+    "explanation": "In OLAP workloads, the star schema is almost always preferred: fewer joins → faster queries, simpler SQL, better query plan optimisation. The storage cost of denormalisation is negligible compared to modern columnar storage (Snowflake, BigQuery, Redshift). Snowflake schema reduces storage redundancy but the performance cost of additional joins is rarely worth it for analytical workloads. Data modellers like Kimball (dimensional modelling) advocate star schema; Inmon favours 3NF (which resembles snowflake) as a foundation. Modern lakehouses (Delta Lake, Iceberg) use open table formats on cloud storage, often with star-like logical models."
+  },
+  {
+    "id": "de-002",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Intermediate",
+    "question": "Explain window functions in SQL. Give examples of RANK vs DENSE_RANK vs ROW_NUMBER.",
+    "answer": "Window functions compute a value for each row using a set of rows related to the current row (the window), without collapsing rows. Syntax: FUNCTION() OVER (PARTITION BY col ORDER BY col ROWS BETWEEN ...). For identical values: ROW_NUMBER: unique sequential (arbitrary tiebreak). RANK: gaps in sequence after ties (1,1,3). DENSE_RANK: no gaps (1,1,2).",
+    "explanation": "Key window functions: LAG/LEAD (access previous/next row values — useful for time series differences); FIRST_VALUE/LAST_VALUE (first/last value in window); NTILE(n) (divide into n buckets); SUM/AVG/COUNT OVER (running aggregates without GROUP BY). Example: calculating each salesperson's revenue as % of their region's total — window with PARTITION BY region. ROW_NUMBER for deduplication (keep first occurrence). RANK for leaderboard display. Dense_RANK for competition scoring. Efficient in columnar DBs (BigQuery, Snowflake, Redshift); avoid materialising large intermediate windows."
+  },
+  {
+    "id": "de-003",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Intermediate",
+    "question": "What is a CTE (Common Table Expression)? When would you use one vs a subquery?",
+    "answer": "A CTE (WITH clause) defines a named temporary result set scoped to a single query. Subquery: defined inline in the main query. CTEs can be recursive (WITH RECURSIVE); subqueries cannot.",
+    "explanation": "Prefer CTEs when: logic is complex (multiple transformations); a result is referenced more than once (some databases cache CTEs, avoiding recomputation); readability is a priority (named steps document the transformation pipeline). Subqueries: slightly faster in some engines when used once (no naming overhead), and necessary for correlated subqueries (WHERE col = (SELECT MAX(col) FROM t WHERE t.group_id = outer.group_id)). Recursive CTEs are powerful for: hierarchical data (org charts, graph traversal), date series generation (WITH RECURSIVE calendar), BFS/DFS in pure SQL. In modern warehouses (BigQuery, Snowflake), CTEs are an organisational tool — materialisation is query-planner-dependent."
+  },
+  {
+    "id": "de-004",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Intermediate",
+    "question": "Explain OLTP vs OLAP. What storage architectures are optimised for each?",
+    "answer": "OLTP (Online Transaction Processing): many short, concurrent read/write transactions on individual rows. Requires high throughput, low latency, ACID compliance. OLAP (Online Analytical Processing): complex, long-running analytical queries aggregating large amounts of data. Requires high scan throughput.",
+    "explanation": "OLTP storage: row-oriented (PostgreSQL, MySQL) — stores all columns of a row together, efficient for fetching complete rows by primary key. OLAP storage: columnar (BigQuery, Snowflake, Redshift, ClickHouse, Parquet) — stores each column contiguously on disk, enabling: (1) reading only necessary columns; (2) high compression per column (similar values adjacent); (3) vectorised SIMD operations on column batches. A query summing one column over 1B rows reads 100× less data with columnar storage. Hybrid: HTAP (HybridTransactional/Analytical Processing) systems like TiDB and Snowflake Hybrid Tables attempt both, with varying trade-offs."
+  },
+  {
+    "id": "de-005",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "What is data partitioning and why does it improve query performance?",
+    "answer": "Partitioning divides a large table into smaller physical segments based on a partition key (commonly a date column). Queries with filters on the partition key scan only relevant partitions (partition pruning), skipping the rest entirely.",
+    "explanation": "Types: range partitioning (date ranges — most common for time-series data); hash partitioning (distribute rows evenly across partitions by hash of a key — useful for even load distribution); list partitioning (explicit category lists). In BigQuery: partition by ingestion time or a DATE/TIMESTAMP column; pair with clustering (physical sort order within partitions) for compound filtering. Query cost and speed improvements of 10-100× for time-filtered queries are common. For ML: partitioning training data by date enables efficient point-in-time feature extraction without full table scans. Always partition large tables (>1GB) in data warehouses."
+  },
+  {
+    "id": "de-006",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "How does Apache Spark differ from Hadoop MapReduce? What architectural decisions make it faster?",
+    "answer": "MapReduce: writes intermediate results to HDFS disk after every map and reduce step — massive I/O overhead. Spark: keeps computation in-memory using Resilient Distributed Datasets (RDDs) / DataFrames, materialising to disk only when memory is insufficient. Also uses lazy evaluation and DAG execution planning.",
+    "explanation": "Spark speedup factors: (1) In-memory processing — eliminates disk I/O between stages; (2) DAG scheduler — optimises the execution plan across stages, enabling pipelining; (3) Lazy evaluation — transformations build a plan, not data; actions trigger execution; (4) Columnar shuffle with Tungsten engine — efficient binary format, off-heap memory; (5) Catalyst query optimiser for DataFrames/SQL. Spark is 10-100× faster than MapReduce for iterative algorithms (ML training, graph processing) and interactive queries. MapReduce's advantage: lower memory requirements; still appropriate for very large batch transforms where data doesn't fit in cluster RAM."
+  },
+  {
+    "id": "de-007",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "Explain the CAP theorem. What trade-offs does it impose on distributed databases?",
+    "answer": "CAP theorem (Brewer): a distributed system can guarantee at most two of: Consistency (all nodes see the same data simultaneously), Availability (every request receives a response), Partition tolerance (system operates despite network partitions). Since network partitions are unavoidable in distributed systems, the real choice is CP vs AP.",
+    "explanation": "CP systems (consistency + partition tolerance): sacrifice availability during partitions — return errors rather than stale data. Examples: HBase, Zookeeper, Spanner (uses TrueTime for global consistency). AP systems (availability + partition tolerance): sacrifice consistency — return potentially stale data but stay available. Examples: Cassandra, DynamoDB, CouchDB. PACELC model extends CAP: even without partitions, there's a trade-off between latency and consistency. For DS pipelines: most data stores in analytics are AP (DynamoDB, Cassandra) — eventual consistency is acceptable; financial systems require CP. Spanner (Google) achieves strong consistency at global scale using hardware-assisted time synchronisation."
+  },
+  {
+    "id": "de-008",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "What is a data lake vs data warehouse vs lakehouse architecture?",
+    "answer": "Data lake: raw, unprocessed data in any format on cheap object storage (S3, GCS) — schema-on-read. Data warehouse: structured, processed data in columnar format optimised for analytics — schema-on-write, governed. Lakehouse: combines both — open table formats (Delta Lake, Apache Iceberg, Apache Hudi) add ACID transactions, schema enforcement, and versioning on top of data lake storage.",
+    "explanation": "Data lake advantages: cheap, flexible, handles all data types, good for ML (raw data access). Disadvantages: no ACID, poor performance without metadata, quality issues ('data swamp'). Data warehouse advantages: fast queries, enforced quality, governance. Disadvantages: rigid schema, expensive, can't store raw unstructured data. Lakehouse (Databricks Delta Lake, Snowflake Iceberg, AWS Lake Formation): best of both — ACID transactions, time travel (query data as of previous snapshot), schema evolution, open format readable by any engine, unified batch + streaming. Now the dominant architecture for modern data stacks."
+  },
+  {
+    "id": "de-009",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "Compare ELT vs ETL. What has shifted in modern data stacks?",
+    "answer": "ETL (Extract, Transform, Load): transform data before loading into the warehouse — requires a separate transformation layer (Spark, Python), transformed data is stored, requires schema planning upfront. ELT (Extract, Load, Transform): load raw data first, then transform inside the warehouse using SQL.",
+    "explanation": "The shift to ELT has been driven by: (1) Modern cloud warehouses (BigQuery, Snowflake, Redshift) are so fast and cheap that transforming at query time is practical; (2) Separation of concerns — dbt handles transformation as SQL/Jinja in version-controlled models; (3) Raw data is preserved (auditable, reprocessable); (4) No separate transformation infrastructure to manage. ETL still makes sense when: data must be sanitised/filtered for compliance before storage; source data is very large and expensive to move raw; real-time streaming transforms are needed. Fivetran/Airbyte handle EL; dbt handles T. This is the modern data stack."
+  },
+  {
+    "id": "de-010",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "How do you handle slowly changing dimensions (SCD) in a data warehouse?",
+    "answer": "SCD Type 1: overwrite the old value — no history preserved, simplest. SCD Type 2: add a new row for each change with valid_from/valid_to dates and a current_flag — full history preserved, row count grows. SCD Type 3: add a 'previous_value' column — limited history (only one version back).",
+    "explanation": "Type 2 is the standard for data warehousing: enables point-in-time correct reporting (what was a customer's status at the time of purchase?). Implementation: on change detected, set valid_to = today - 1 and current_flag = false for old row; insert new row with valid_from = today, current_flag = true. dbt snapshots automate Type 2 SCD using the strategy: check if a row's source record has changed (using checksum or key fields), and insert/expire accordingly. Type 1 is appropriate for corrections (fixing typos in names); Type 2 for genuine business events (customer moves state, changes plan)."
+  },
+  {
+    "id": "de-011",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Intermediate",
+    "question": "What is query optimisation? What does EXPLAIN ANALYZE tell you in PostgreSQL?",
+    "answer": "Query optimisation: the database's query planner selects the optimal execution plan (join order, join type, index vs sequential scan) using statistics about table sizes, column distributions, and index selectivity. EXPLAIN ANALYZE shows the actual execution plan with timing and row count estimates vs actuals.",
+    "explanation": "Key things to look for in EXPLAIN ANALYZE: (1) Sequential scans on large tables — missing index? (2) Estimate vs actual row count mismatches — stale statistics (run ANALYZE); (3) Nested loop joins on large tables — missing index or wrong join order; (4) High 'loops' count — inner side of a nested loop re-scanned many times; (5) Sort operations that spill to disk — work_mem too low. Common optimisations: add indexes on filter/join columns; partition tables; rewrite correlated subqueries as joins; materialise frequently-joined CTEs; ensure statistics are fresh. Understanding query plans is a key skill for DS working with large datasets."
+  },
+  {
+    "id": "de-012",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Intermediate",
+    "question": "What are the ACID properties and why do they matter?",
+    "answer": "Atomicity: a transaction is all-or-nothing — either all operations succeed or all are rolled back. Consistency: transaction brings database from one valid state to another (respecting constraints). Isolation: concurrent transactions appear to execute serially. Durability: committed transactions persist even after system failures.",
+    "explanation": "ACID ensures data integrity in the face of concurrent access and failures. Without atomicity: partial writes corrupt data (e.g. debit account but fail before credit). Without isolation: dirty reads, phantom reads, non-repeatable reads corrupt analytics. Isolation levels: READ UNCOMMITTED (no isolation), READ COMMITTED, REPEATABLE READ, SERIALIZABLE (full isolation, slowest). Most OLAP systems relax ACID for performance — BASE (Basically Available, Soft-state, Eventually consistent). Delta Lake and Iceberg bring ACID to data lakes, enabling reliable upserts and concurrent read/write workloads without corrupting ML training data."
+  },
+  {
+    "id": "de-013",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "Explain Apache Kafka's architecture. What delivery guarantees does it provide?",
+    "answer": "Kafka: distributed log/message streaming platform. Topics are partitioned and replicated across brokers. Producers write to partition leaders; consumers (in consumer groups) read from partitions independently, tracking offsets. Delivery: at-most-once (no duplicates, possible loss), at-least-once (possible duplicates, no loss), exactly-once (idempotent producers + transactions).",
+    "explanation": "Key concepts: Partition: ordered, immutable log of messages — enables parallelism and ordered processing within a partition. Consumer group: each partition consumed by exactly one consumer — enables horizontal scaling. Offset: each message has a unique offset; consumers commit offsets to track progress. Retention: messages retained for a configurable period (7 days default), enabling replay. Exactly-once semantics (EOS): requires idempotent producers (deduplication by sequence number) + transactional API (atomic write across partitions). Use cases for ML: real-time feature computation, event streaming for online learning, model inference pipeline input. Kafka is the dominant stream processing backbone; alternatives: Pulsar, AWS Kinesis, Google Pub/Sub."
+  },
+  {
+    "id": "de-014",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "What is dbt (data build tool) and how does it fit into a modern data stack?",
+    "answer": "dbt is a transformation framework that lets analysts write data transformations as SQL SELECT statements (models). dbt compiles these into DDL/DML and runs them in the warehouse. It adds version control, testing, documentation, lineage DAGs, and scheduling to SQL transformations.",
+    "explanation": "dbt's key contributions: (1) Models are SELECT statements — no INSERT/UPDATE boilerplate; (2) ref() function resolves dependencies and builds a DAG of transformations; (3) Tests (not_null, unique, accepted_values, relationships) run on every table automatically; (4) Documentation generated from schema.yml appears in a searchable data catalogue; (5) Lineage graph shows upstream/downstream dependencies. dbt occupies the T in ELT: data arrives in the warehouse raw (via Fivetran/Airbyte), and dbt produces clean, tested, documented analytical models. dbt Cloud adds CI/CD, scheduling, and environment management. Now a standard tool in data engineering."
+  },
+  {
+    "id": "de-015",
+    "topic": "Data Engineering & SQL",
+    "difficulty": "Senior",
+    "question": "What is data lineage and why is it important for compliance and debugging?",
+    "answer": "Data lineage tracks the origin, movement, transformation, and consumption of data throughout its lifecycle — which source systems feed which pipelines, which tables, which models, and which dashboards or ML features.",
+    "explanation": "Compliance (GDPR, CCPA): when a user requests data deletion, lineage tells you every system and derived dataset containing their data — without it, deletion is incomplete. Debugging: when a metric changes unexpectedly, lineage lets you trace it upstream to find which source table or pipeline transformation changed. Impact analysis: before modifying a source table's schema, lineage shows which downstream models will break. ML reproducibility: lineage for model features traces exactly which data versions were used for training. Tools: OpenLineage (open standard), Marquez, DataHub, Atlan, dbt exposures. Forward (impact) lineage and backward (root cause) lineage are both essential for production data teams."
+  }
+]

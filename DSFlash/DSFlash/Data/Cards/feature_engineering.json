@@ -1,0 +1,98 @@
+[
+  {
+    "id": "fe-001",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "What is target encoding and what is the risk of data leakage when applying it?",
+    "answer": "Target encoding replaces a categorical feature value with the mean of the target variable for that category: encode(category) = mean(y | x == category). More informative than one-hot for high-cardinality features.",
+    "explanation": "Leakage risk: if you compute target means using the full training set (including the current row), the model sees its own label, causing overfitting — especially severe for rare categories. Correct approach: out-of-fold encoding (compute means using only training folds that exclude the current sample, like k-fold cross-encoding), or add noise/smoothing: encode(c) = (n_c·mean_c + m·global_mean) / (n_c + m) where m is a smoothing factor. Prevents rare categories from getting extreme encoded values that memorise their single label."
+  },
+  {
+    "id": "fe-002",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "Explain strategies for handling missing data. What assumptions does each make?",
+    "answer": "Mean/median/mode imputation: assumes MCAR (missing completely at random); distorts distribution. Regression/model imputation: predicts missing values from other features — assumes MAR (missing at random given observed). Multiple imputation (MICE): generates multiple plausible completions accounting for uncertainty. Indicator variable: add a binary 'was_missing' feature alongside imputed value — assumption-free, lets model learn the missingness pattern.",
+    "explanation": "MCAR: missingness unrelated to any variable. MAR: missingness depends only on observed variables. MNAR (missing not at random): missingness depends on the missing value itself (e.g. high earners not reporting income) — hardest to handle correctly. Mean imputation: underestimates variance, distorts correlations. Tree-based models can handle missing values natively (LightGBM, XGBoost) by learning optimal split directions for missing values. For production: always track which values were imputed; impute test set using training set statistics only."
+  },
+  {
+    "id": "fe-003",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "How do you encode high-cardinality categorical features?",
+    "answer": "Options: (1) Target encoding (mean of target per category, with smoothing); (2) Frequency/count encoding (replace with category frequency); (3) Hash encoding (hash to fixed-width integer, reduces dimensionality, some collision); (4) Entity embeddings (learn a dense vector per category in a neural network); (5) Binary encoding (encode ordinal integer in binary — log2(n_categories) features).",
+    "explanation": "One-hot encoding is infeasible for high-cardinality features (10k+ categories creates memory and overfitting issues). Target encoding is most predictive but prone to leakage without cross-validation care. Entity embeddings (as used in fastai) can capture rich inter-category relationships and are powerful for tabular deep learning. Frequency encoding is simple and leakage-free but loses information about the relationship with target. Hashing trades some accuracy for simplicity and online learning suitability."
+  },
+  {
+    "id": "fe-004",
+    "topic": "Feature Engineering",
+    "difficulty": "Beginner",
+    "question": "What is feature scaling? Compare standardisation vs min-max normalisation and when to use each.",
+    "answer": "Standardisation (z-score): x' = (x − μ) / σ. Output is mean 0, std 1. No fixed range. Min-max normalisation: x' = (x − min) / (max − min). Output in [0,1]. Sensitive to outliers.",
+    "explanation": "Use standardisation for: linear models (logistic regression, SVM), PCA, neural networks with BatchNorm, k-NN with Euclidean distance. Use min-max for: image pixel values (exact [0,1] expected), algorithms requiring bounded inputs. Tree-based models (RF, XGBoost) are scale-invariant — no scaling needed. Always fit scaler on training data only and apply to test data — fitting on test data leaks distribution information. RobustScaler (median + IQR) is an outlier-resistant alternative to z-score."
+  },
+  {
+    "id": "fe-005",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "How do you engineer features from time series data?",
+    "answer": "Common time series features: lag features (x_{t-1}, x_{t-7}); rolling statistics (rolling mean, std, min, max over windows); date-time decomposition (hour, day of week, month, is_holiday, is_weekend); Fourier features (sin/cos of cyclic periods for seasonality); expanding window statistics; difference/change features (x_t − x_{t-1}); time since last event.",
+    "explanation": "Leakage is the critical concern: all features must use only information available at prediction time. For a model predicting t+1, lag features must be from t or earlier. Rolling windows: use strictly past windows (e.g. 7-day rolling mean ending at t-1, not t). Date features capture seasonality — sin(2π·day_of_year/365) and cos(...) encode cyclic patterns continuously. TSFresh library automates extraction of hundreds of statistical time series features. For deep learning on time series, raw sequences fed to LSTMs or Temporal Convolutional Networks can learn feature extraction automatically."
+  },
+  {
+    "id": "fe-006",
+    "topic": "Feature Engineering",
+    "difficulty": "Senior",
+    "question": "What is a feature store and why is it valuable in a production ML system?",
+    "answer": "A feature store is a centralised system for storing, sharing, computing, and serving ML features. It provides: offline store (historical features for training), online store (low-latency feature serving for inference), and feature transformation logic in a single canonical place.",
+    "explanation": "Problems it solves: (1) Training-serving skew — features computed differently in notebooks vs production cause silent performance degradation; (2) Duplication — 5 teams recomputing the same user_avg_purchase feature independently; (3) Discoverability — data scientists can browse and reuse existing features instead of rebuilding; (4) Point-in-time correctness — training queries feature values as they existed at prediction time (no future leakage). Examples: Feast (open-source), Tecton, Vertex AI Feature Store, Databricks Feature Store. Essential in organisations with many models sharing common features."
+  },
+  {
+    "id": "fe-007",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "What is feature selection? Compare filter, wrapper, and embedded methods.",
+    "answer": "Filter methods: rank features by a statistical measure (correlation, mutual information, chi²) independently of the model — fast, model-agnostic, ignores feature interactions. Wrapper methods: evaluate feature subsets by training a model on them (RFE, forward/backward selection) — accurate, very slow, prone to overfitting. Embedded methods: feature selection occurs during model training (L1 regularisation, tree feature importances) — efficient, model-specific.",
+    "explanation": "In practice: start with embedded methods (Lasso, tree importances) for a first pass. Use permutation importance or SHAP for more reliable importance estimates (tree's built-in feature importance is biased toward high-cardinality features). Correlation-based filter for removing redundant features before modelling. Wrapper methods (RFECV) for final tuning when compute allows. Reducing features: speeds training, reduces overfitting on small datasets, improves interpretability, but can remove interaction information."
+  },
+  {
+    "id": "fe-008",
+    "topic": "Feature Engineering",
+    "difficulty": "Senior",
+    "question": "Explain embeddings as features. How would you use LLM embeddings as input features to a downstream model?",
+    "answer": "Embeddings map high-cardinality discrete objects (words, items, users) to dense continuous vectors. LLM embeddings (e.g. text-embedding-3-large, E5) convert text to ~1536-d vectors encoding semantic meaning. These can be used as features in any downstream model.",
+    "explanation": "Practical pipeline: encode text fields (product descriptions, reviews, support tickets) with a frozen embedding model → concatenate embedding with tabular features → train gradient boosting or neural network on the combined feature vector. Key decisions: (1) Frozen vs fine-tuned embeddings (frozen is faster, fine-tuned is more task-specific); (2) Dimensionality reduction (PCA to 50-200 dims) before concatenation to prevent the tabular features from being dominated by high-dimensional embeddings; (3) Which embedding model — domain-matched models often better than general ones. This is now standard practice for tabular+text hybrid datasets."
+  },
+  {
+    "id": "fe-009",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "How do you handle class imbalance in training data?",
+    "answer": "Techniques: (1) Class weights — weight minority class loss higher in the loss function (class_weight='balanced' in sklearn); (2) Oversampling — SMOTE (synthetic minority oversampling: interpolate between minority samples); (3) Undersampling — randomly remove majority class samples; (4) Threshold adjustment — lower decision threshold for minority class at inference; (5) Ensemble methods (BalancedBaggingClassifier, EasyEnsemble).",
+    "explanation": "Class weights and threshold adjustment are the simplest and often most effective — they don't alter the data distribution, only the loss or decision function. SMOTE can help for very severe imbalance but may create noise at decision boundaries. Always evaluate with precision-recall AUC or F1, not accuracy (which is misleading for imbalanced classes). Extreme imbalance (1:10000) is better addressed as anomaly detection (one-class SVM, Isolation Forest, Autoencoder reconstruction error) rather than classification."
+  },
+  {
+    "id": "fe-010",
+    "topic": "Feature Engineering",
+    "difficulty": "Senior",
+    "question": "Explain dimensionality reduction as feature engineering: PCA vs autoencoders vs UMAP.",
+    "answer": "PCA: linear, maximises variance, deterministic, fast. Autoencoder: nonlinear, learned bottleneck representation, can capture complex manifolds, requires training. UMAP: nonlinear, manifold learning, optimised for local + global structure preservation — better for visualisation and clustering.",
+    "explanation": "As feature engineering: PCA is fastest and most robust — use for preprocessing before linear models or when interpretability of components matters. Autoencoders learn task-agnostic dense representations — useful for unsupervised pre-training or when you have high-dimensional sparse inputs (e.g. raw pixel features, high-cardinality entity embeddings). UMAP (and t-SNE) are primarily for visualisation, not as model inputs — UMAP embeddings are non-deterministic and not stable across runs. In NLP, pre-trained model embeddings are now the dominant form of dimensionality reduction, replacing hand-engineered PCA pipelines."
+  },
+  {
+    "id": "fe-011",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "What are interaction features and polynomial features? When do they help?",
+    "answer": "Interaction features: products of two or more features (x₁·x₂), capturing non-additive effects. Polynomial features: xᵢ^d for degree d, capturing non-linear relationships in a linear model.",
+    "explanation": "Help when: linear models are used but the true relationship is non-linear or involves interactions; you have domain knowledge that two features interact (e.g. height × weight for BMI); the dataset is small and adding these features provides a useful signal. Downsides: feature explosion (O(n²) interactions for n features), risk of overfitting on small datasets, multicollinearity. For large datasets, tree-based models capture interactions automatically — explicit interaction features are less necessary. Polynomial regression is equivalent to fitting a polynomial curve; it can overfit badly at high degrees (Runge's phenomenon)."
+  },
+  {
+    "id": "fe-012",
+    "topic": "Feature Engineering",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between normalising and standardising text? When does each matter?",
+    "answer": "Text normalisation: lowercasing, removing punctuation/special chars, Unicode normalisation (NFC/NFKC), expanding contractions, stemming/lemmatisation. Standardisation: bringing numerical features to a common scale (not applicable to raw text — applies to numerical features derived from text, e.g. TF-IDF vectors).",
+    "explanation": "Text normalisation decisions depend on the task: lowercasing reduces vocabulary size (helpful for sparse models) but loses meaning (Python vs python). Stemming/lemmatisation reduces morphological variation but loses grammatical information. For transformer-based models: minimal preprocessing — the tokenizer handles subword splitting, and the model benefits from casing and punctuation information. For bag-of-words TF-IDF models: aggressive normalisation helps. Removing stop words: useful for TF-IDF; harmful for transformers. Always apply the same normalisation at training and inference time."
+  }
+]

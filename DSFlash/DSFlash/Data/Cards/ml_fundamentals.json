@@ -1,0 +1,162 @@
+[
+  {
+    "id": "ml-001",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "Explain the bias-variance trade-off. How does it manifest in practice?",
+    "answer": "Total expected error = Bias² + Variance + Irreducible noise. High bias (underfitting): model too simple, systematic errors. High variance (overfitting): model too complex, sensitive to training noise.",
+    "explanation": "In practice: a decision tree with max_depth=1 has high bias; one with no depth limit has high variance. Regularisation (L1/L2), ensemble methods, and cross-validation are tools to navigate this trade-off. Deep learning partially breaks the classical trade-off: overparameterised networks can simultaneously achieve low bias and generalise well (double descent phenomenon)."
+  },
+  {
+    "id": "ml-002",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "What is regularisation? Compare L1 (Lasso) and L2 (Ridge) and when to use each.",
+    "answer": "Regularisation adds a penalty to the loss function to discourage complex models. L1: λΣ|wᵢ| — produces sparse solutions (exact zeros). L2: λΣwᵢ² — shrinks all weights toward zero smoothly, no exact zeros.",
+    "explanation": "Use L1 when you want automatic feature selection or believe few features are truly relevant (sparse ground truth). Use L2 when all features are expected to contribute and you want numerical stability (unique solution, works with correlated features). Elastic Net combines both. L1's sparsity emerges because its gradient is constant regardless of weight magnitude — once small, L2 stops penalising hard enough to zero weights out."
+  },
+  {
+    "id": "ml-003",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "How does gradient descent work? Compare batch, mini-batch, and stochastic gradient descent.",
+    "answer": "GD updates parameters in the direction of the negative gradient: θ ← θ − η∇L(θ). Batch GD: gradient over full dataset (stable but slow per update). SGD: gradient over one sample (fast but noisy). Mini-batch: gradient over k samples — balances speed and stability.",
+    "explanation": "Mini-batch (typically 32–512) is the standard in deep learning: parallelises well on GPUs, gradient noise provides implicit regularisation, and convergence is faster than batch. SGD's noise helps escape local minima and saddle points. Learning rate scheduling, momentum, and adaptive optimisers (Adam, AdaGrad) all build on the basic GD update to handle pathological curvature."
+  },
+  {
+    "id": "ml-004",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "What is overfitting? List five strategies to prevent it.",
+    "answer": "Overfitting: a model learns training data noise and fails to generalise to unseen data (high training accuracy, low test accuracy).",
+    "explanation": "Prevention strategies: (1) More training data — most robust fix; (2) Regularisation (L1/L2/Dropout) — penalise complexity; (3) Early stopping — halt training when validation loss plateaus; (4) Cross-validation — choose hyperparameters based on held-out performance; (5) Simpler model architecture — reduce capacity. Additional: data augmentation, ensemble methods (averaging reduces variance), feature selection to remove noise."
+  },
+  {
+    "id": "ml-005",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "Explain the kernel trick in SVMs. What problem does it solve?",
+    "answer": "The kernel trick computes the inner product of data points in a high-dimensional (or infinite-dimensional) feature space without explicitly computing the transformation: K(x,x') = φ(x)·φ(x'). SVMs only need pairwise inner products, so this enables non-linear classification at the cost of the original dimension.",
+    "explanation": "Common kernels: RBF/Gaussian K(x,x') = exp(−γ||x−x'||²) — infinite-dimensional feature space; polynomial K(x,x') = (x·x' + c)^d. The kernel trick is possible because the SVM dual objective depends only on inner products. It solves the problem of non-linearly separable data without the computational cost of explicit feature mapping. Mercer's theorem guarantees a valid kernel corresponds to a valid inner product in some Hilbert space."
+  },
+  {
+    "id": "ml-006",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "How does a random forest differ from gradient boosting? When would you choose one over the other?",
+    "answer": "Random forest: parallel ensemble of deep trees trained on bootstrap samples with random feature subsets. Aggregation reduces variance. Gradient boosting: sequential ensemble where each tree corrects the residuals of previous trees. Reduces bias iteratively.",
+    "explanation": "Random forests: faster to train (parallelisable), more robust to outliers and hyperparameter choices, harder to overfit. Gradient boosting (XGBoost, LightGBM, CatBoost): generally higher accuracy on tabular data, but slower, more sensitive to hyperparameters, and easier to overfit. Choose RF for fast baselines or when compute is limited; choose boosting for competitions or when maximising accuracy on structured data. Both are strong defaults for tabular data."
+  },
+  {
+    "id": "ml-007",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "Explain expectation-maximisation (EM). What is a canonical use case?",
+    "answer": "EM is an iterative algorithm for finding MLE in models with latent variables. E-step: compute the expected log-likelihood given current parameters and observed data (soft-assign latent variables). M-step: maximise that expectation to update parameters. Repeat until convergence.",
+    "explanation": "Canonical use case: fitting a Gaussian Mixture Model. E-step computes the probability each data point belongs to each Gaussian component (soft cluster assignments). M-step updates each component's mean, variance, and mixing weight using those soft assignments. Guaranteed to increase log-likelihood at each step (but may converge to a local maximum). Also used in HMMs, NLP models (IBM translation models), and missing data imputation."
+  },
+  {
+    "id": "ml-008",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is XGBoost and what improvements does it make over vanilla gradient boosting?",
+    "answer": "XGBoost (eXtreme Gradient Boosting) is a regularised gradient boosting implementation. Key improvements: (1) L1/L2 regularisation on leaf weights; (2) second-order Taylor expansion of the loss for better gradient approximation; (3) column/row subsampling; (4) sparse-aware split finding for missing values; (5) parallel tree construction.",
+    "explanation": "XGBoost's use of second-order gradient statistics (Hessian) makes splits more accurate than vanilla boosting's first-order approximation. Regularisation terms (γ for minimum split gain, λ for L2 leaf weight) directly control overfitting. In practice it dominated Kaggle competitions until the rise of deep learning on tabular data (TabNet, FT-Transformer). LightGBM and CatBoost are competitive alternatives with different speed/accuracy trade-offs."
+  },
+  {
+    "id": "ml-009",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "How does k-means clustering work and what are its failure modes?",
+    "answer": "k-means iterates: (1) Assign each point to nearest centroid; (2) Update centroids as the mean of assigned points. Minimises within-cluster sum of squared distances (WCSS).",
+    "explanation": "Failure modes: (1) Assumes spherical, equal-size clusters — fails on elongated or unequal clusters; (2) Sensitive to initialisation — k-means++ mitigates this; (3) Requires k to be specified in advance — use elbow method or silhouette score; (4) Sensitive to outliers (mean is non-robust); (5) Poor on high-dimensional data (distances become meaningless). DBSCAN, GMMs, or hierarchical clustering are alternatives for non-spherical data."
+  },
+  {
+    "id": "ml-010",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "Explain how information gain is used in decision trees.",
+    "answer": "Information gain = Entropy(parent) − Σ [weighted Entropy(child)] for a given split. Entropy H(S) = −Σ pᵢ log₂(pᵢ). A split is chosen to maximise information gain — the greatest reduction in uncertainty.",
+    "explanation": "ID3 and C4.5 use information gain; CART uses Gini impurity (1 − Σpᵢ²) which is computationally cheaper. Gini and entropy produce similar splits in practice. A key limitation: information gain favours high-cardinality features (e.g. ID columns) — gain ratio (information gain / split information) corrects this. For regression trees, variance reduction replaces entropy."
+  },
+  {
+    "id": "ml-011",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is a Gaussian Mixture Model? How does it compare to k-means?",
+    "answer": "A GMM models data as a weighted sum of K Gaussian distributions: P(x) = Σ πₖ N(x; μₖ, Σₖ). Fitted via EM. It performs soft assignment — each point has a probability of belonging to each cluster.",
+    "explanation": "GMM vs k-means: GMM allows elliptical clusters (Σₖ not constrained to be spherical), provides probabilistic membership, and has principled model selection via BIC/AIC. k-means is a special case of GMM with spherical equal-covariance components and hard assignment. GMM is more expressive but more parameters to estimate, more sensitive to initialisation, and slower than k-means. Useful for density estimation and generative modelling."
+  },
+  {
+    "id": "ml-012",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "Describe PCA mathematically. What does each eigenvector represent?",
+    "answer": "PCA finds the orthogonal directions of maximum variance in data. Steps: centre data, compute covariance matrix Σ = XᵀX/(n−1), decompose Σ = VΛVᵀ. Each eigenvector (principal component) is a direction in feature space; each eigenvalue is the variance explained in that direction.",
+    "explanation": "The first PC captures the most variance, the second the most of the remainder, and so on. Projecting onto the top k PCs gives the optimal k-dimensional linear approximation (in terms of reconstruction error). PCA is equivalent to truncated SVD: X ≈ UΣVᵀ where V's columns are the PCs. Used for dimensionality reduction, visualisation, and removing multicollinearity before regression. Assumes linear structure — for non-linear, use kernel PCA or UMAP."
+  },
+  {
+    "id": "ml-013",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is the No Free Lunch theorem and what does it imply for model selection?",
+    "answer": "The NFL theorem states that no learning algorithm outperforms any other when averaged uniformly over all possible data-generating distributions. Every algorithm that excels on some problems performs worse on others.",
+    "explanation": "Implication: there is no universally best model. Algorithm selection requires domain knowledge and inductive biases tailored to your specific problem structure. In practice: tree-based methods dominate tabular data; CNNs dominate vision; Transformers dominate sequential data — because each family encodes problem-specific inductive biases. Always validate on your actual data distribution. NFL is also why cross-validation is the gold standard for model selection."
+  },
+  {
+    "id": "ml-014",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is the curse of dimensionality and what practical problems does it create?",
+    "answer": "As dimensionality d increases, the volume of the space grows exponentially, data becomes sparse, and distances become increasingly similar between points (concentration of measure).",
+    "explanation": "Practical problems: (1) k-NN breaks down — all distances converge, so no point is much closer than any other; (2) Density estimation requires exponentially more data; (3) Optimisation landscapes have exponentially more saddle points; (4) Visualisation is impossible directly; (5) Many features are noise, degrading model performance. Solutions: dimensionality reduction (PCA, UMAP), feature selection, regularisation, and deep learning (which learns low-dimensional manifolds implicitly)."
+  },
+  {
+    "id": "ml-015",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is DBSCAN? What are its advantages over k-means for spatial data?",
+    "answer": "DBSCAN (Density-Based Spatial Clustering) defines clusters as dense regions separated by sparse regions. Parameters: ε (neighbourhood radius) and minPts (minimum points to form a core point). Points not in any cluster are labelled noise.",
+    "explanation": "Advantages over k-means: (1) Discovers arbitrary-shaped clusters (not just spherical); (2) No need to specify k in advance; (3) Explicitly handles noise/outliers; (4) Works well with spatial/geographic data. Limitations: struggles with varying density clusters; ε and minPts are sensitive; doesn't perform well in high dimensions. HDBSCAN extends DBSCAN to handle varying density and produces a hierarchy of clusters."
+  },
+  {
+    "id": "ml-016",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "Explain the difference between generative and discriminative models.",
+    "answer": "Discriminative models: learn P(Y|X) directly — the conditional distribution of labels given features. Examples: logistic regression, SVM, neural networks. Generative models: learn the joint distribution P(X,Y) and use Bayes' theorem to get P(Y|X). Examples: Naive Bayes, LDA, GMMs, VAEs, GANs.",
+    "explanation": "Discriminative models typically outperform generative models on classification tasks when labelled data is abundant, because they focus directly on the decision boundary. Generative models are useful when: data is scarce (can generate more); you need to model P(X) (anomaly detection, density estimation); or you want to sample new examples. GPT and diffusion models are generative; BERT fine-tuned for classification is discriminative."
+  },
+  {
+    "id": "ml-017",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "Explain isotonic regression and when you would apply it.",
+    "answer": "Isotonic regression fits a non-decreasing (monotone) step function to data, minimising sum of squared residuals subject to the monotonicity constraint. Solved via the pool adjacent violators (PAV) algorithm in O(n).",
+    "explanation": "Apply it when: (1) Calibrating classifier probability outputs — a classifier's raw scores may be non-monotonically related to true probabilities; Platt scaling (logistic) and isotonic regression are the two standard calibration methods, with isotonic being non-parametric and more flexible; (2) When domain knowledge implies a monotone relationship; (3) As a post-processing step in ranking models. Overfits on small datasets compared to Platt scaling."
+  },
+  {
+    "id": "ml-018",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is transfer learning and when is it appropriate?",
+    "answer": "Transfer learning initialises a model with weights pre-trained on a large source task/dataset, then fine-tunes on a smaller target task. The pre-trained representations capture general features that transfer.",
+    "explanation": "Appropriate when: target dataset is small (insufficient to train from scratch); source and target domains are related (ImageNet→medical imaging); compute budget is limited. Two strategies: (1) Feature extraction — freeze pre-trained layers, train only a new head; (2) Fine-tuning — unfreeze some or all layers and train with a low learning rate. The more similar the domains, the more layers you can unfreeze. NLP: BERT/GPT pre-training → task fine-tuning is now the dominant paradigm. Vision: ImageNet pre-training is almost always used as the starting point."
+  },
+  {
+    "id": "ml-019",
+    "topic": "ML Fundamentals",
+    "difficulty": "Intermediate",
+    "question": "What is the VC dimension and why does it matter for model selection?",
+    "answer": "The VC (Vapnik-Chervonenkis) dimension of a model class is the largest number of points it can shatter (correctly classify in all 2^n labellings). It measures the capacity/expressiveness of the hypothesis class.",
+    "explanation": "VC dimension bounds generalisation error: with n training points and VC dimension d, the generalisation gap is O(√(d/n)). Higher VC dimension → more complex model → more data needed to generalise. Linear classifiers in R^d have VC dimension d+1; SVMs with RBF kernel have infinite VC dimension but are still well-regularised via the margin. In practice, regularisation implicitly controls effective capacity — modern deep networks have enormous VC dimension but generalise via inductive biases in the architecture and training."
+  },
+  {
+    "id": "ml-020",
+    "topic": "ML Fundamentals",
+    "difficulty": "Senior",
+    "question": "What is PAC learning and learnability?",
+    "answer": "PAC (Probably Approximately Correct) learning: a concept class C is PAC-learnable if there exists an algorithm that, given m ≥ poly(1/ε, 1/δ) samples, with probability ≥ 1−δ outputs a hypothesis h with error ≤ ε, in polynomial time.",
+    "explanation": "PAC learning provides a formal framework for asking 'what can be learned efficiently from data?' Finite hypothesis classes with |H| hypotheses are PAC-learnable with m = O(log|H|/ε) samples (the VC bound generalises this to infinite classes). Implications for DS: it quantifies how much data you need for a desired accuracy with desired confidence — underpins sample size calculations. Most practically relevant models are PAC-learnable; PAC-learning theory motivates regularisation as a way to work in a smaller effective hypothesis class."
+  }
+]

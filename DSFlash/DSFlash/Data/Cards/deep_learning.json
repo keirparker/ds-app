@@ -1,0 +1,146 @@
+[
+  {
+    "id": "dl-001",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Intermediate",
+    "question": "Explain backpropagation from first principles. What is the chain rule's role?",
+    "answer": "Backpropagation computes gradients of the loss with respect to each parameter by applying the chain rule backwards through the computation graph. ∂L/∂w = ∂L/∂a · ∂a/∂z · ∂z/∂w, propagated layer by layer from output to input.",
+    "explanation": "The key insight: the gradient of a composed function is the product of individual derivatives. Backprop stores intermediate activations during the forward pass, then reuses them in the backward pass to compute gradients efficiently in O(forward_pass) time. Without backprop, computing gradients by finite differences would require one forward pass per parameter — infeasible for millions of weights. Automatic differentiation (autograd) in PyTorch/JAX implements this via dynamic computation graphs."
+  },
+  {
+    "id": "dl-002",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is the vanishing gradient problem? How do residual connections (ResNets) solve it?",
+    "answer": "In deep networks, gradients can shrink exponentially during backprop as they are multiplied by small Jacobians layer by layer (especially with sigmoid/tanh activations), making early layers receive near-zero gradients and learn extremely slowly.",
+    "explanation": "ResNets introduce skip connections: output = F(x) + x. The gradient then flows through two paths — through F(x) and directly via the identity shortcut. Even if F's gradient vanishes, gradients flow through the identity path with magnitude 1. This enables training networks hundreds of layers deep. ReLU activations also mitigate vanishing gradients (gradient is 1 for positive activations). BatchNorm additionally stabilises gradient magnitudes across layers."
+  },
+  {
+    "id": "dl-003",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "Compare batch normalisation and layer normalisation. When is each preferred?",
+    "answer": "Batch Norm: normalises across the batch dimension for each feature — mean and variance computed per feature over the mini-batch. Layer Norm: normalises across the feature dimension for each sample — mean and variance computed per sample over all features.",
+    "explanation": "BatchNorm: works well for CNNs with large batches; unstable with small batch sizes; doesn't work well at inference with batch size 1. LayerNorm: normalises per example so is independent of batch size — preferred for Transformers, RNNs, and NLP tasks where sequences vary in length and batch sizes can be small. In Transformers, LayerNorm is applied after (or before) each sub-layer. GPT, BERT, and most modern LLMs use LayerNorm. BatchNorm remains dominant in CNNs for vision."
+  },
+  {
+    "id": "dl-004",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Intermediate",
+    "question": "What is dropout and why does it work as a regulariser?",
+    "answer": "Dropout randomly sets a fraction p of neurons to zero during each training forward pass. At test time, all neurons are active but outputs are scaled by (1−p). This prevents co-adaptation: neurons can't rely on specific other neurons being present.",
+    "explanation": "Dropout effectively trains an ensemble of 2^n sub-networks (for n dropped units), averaging their predictions at test time. This ensemble interpretation explains why it reduces overfitting. Dropout is equivalent to adding noise to activations, which is a form of regularisation. Works best for large networks; less effective for CNNs (spatial dropout preferred) and Transformers (DropPath/stochastic depth is preferred). Typically p=0.5 for fully-connected layers; p=0.1 for Transformers."
+  },
+  {
+    "id": "dl-005",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "Explain the Transformer architecture. What is multi-head self-attention?",
+    "answer": "Transformer: Encoder-Decoder architecture using attention instead of recurrence. Multi-head self-attention: for each head, compute Q=XWq, K=XWk, V=XWv, then Attention = softmax(QKᵀ/√d)V. Multiple heads run in parallel; outputs are concatenated and projected.",
+    "explanation": "Self-attention lets each token attend to all other tokens simultaneously — O(n²) complexity in sequence length. Each head can learn different relationship types (syntactic, semantic). The √d scaling prevents dot products from growing large (which would push softmax into saturation). Feed-forward layers process each position independently after attention. Positional encodings inject order information. The parallel nature (no sequential dependence) is why Transformers are so efficient on GPUs compared to RNNs."
+  },
+  {
+    "id": "dl-006",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Intermediate",
+    "question": "Compare activation functions: ReLU, GELU, and SiLU. What are their trade-offs?",
+    "answer": "ReLU: max(0,x) — simple, avoids vanishing gradients, but 'dying ReLU' problem (neurons stuck at 0). GELU: x·Φ(x) — smooth, probabilistic gating, used in BERT/GPT. SiLU (Swish): x·σ(x) — smooth, non-monotone, used in EfficientNet, LLaMA.",
+    "explanation": "ReLU's simplicity made it the deep learning default, replacing sigmoid/tanh. Its non-differentiability at 0 is rarely a problem. GELU and SiLU are smooth alternatives that empirically outperform ReLU in Transformers and modern CNNs — their slight negative values for small positive inputs appear to provide useful gradient signal. SiLU/Swish is now dominant in frontier LLMs (LLaMA, Mistral). Leaky ReLU and ELU address dying ReLU for CNNs."
+  },
+  {
+    "id": "dl-007",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Intermediate",
+    "question": "How does an LSTM differ from a vanilla RNN? What problem does it solve?",
+    "answer": "LSTM adds a cell state cₜ and three gates: forget gate (fₜ = σ(Wf·[hₜ₋₁,xₜ])), input gate (iₜ), output gate (oₜ). The cell state carries information across long sequences with additive updates, avoiding multiplicative gradient decay.",
+    "explanation": "Vanilla RNNs suffer from vanishing/exploding gradients over long sequences because gradients are multiplied through the same weight matrix repeatedly (Whh^t grows or shrinks exponentially). LSTMs solve this via the cell state highway: gradients flow back through additive connections, not multiplicative ones (similar to ResNet intuition). GRUs simplify LSTMs to two gates with similar performance. Both are now largely superseded by Transformers for sequence modelling, but remain used in time-series with limited data."
+  },
+  {
+    "id": "dl-008",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "Explain weight initialisation strategies: Xavier vs He initialisation.",
+    "answer": "Xavier (Glorot): initialise weights ~ U(−√(6/(nᵢₙ+nₒᵤₜ)), √(6/(nᵢₙ+nₒᵤₜ))). Designed for sigmoid/tanh — keeps variance of activations and gradients constant across layers. He: ~ N(0, √(2/nᵢₙ)). Designed for ReLU — accounts for the fact that half the neurons are zeroed.",
+    "explanation": "Poor initialisation causes vanishing/exploding activations before training even begins. Xavier scales by both fan-in and fan-out (bidirectional signal flow); He scales by fan-in only (accounts for ReLU's expected activation variance being halved). Modern activations like GELU use He-like initialisation. Transformers use special initialisation (1/√2L scaling on residual branches, from the GPT-2 paper) to ensure stable activations at initialisation in very deep networks."
+  },
+  {
+    "id": "dl-009",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is the difference between a VAE and a GAN? What is each suited for?",
+    "answer": "VAE (Variational Autoencoder): encoder maps input to a latent distribution q(z|x) ≈ N(μ,σ²); decoder reconstructs from sampled z. Trained by maximising ELBO = E[log p(x|z)] − KL(q||p). GAN: generator tries to fool a discriminator; discriminator distinguishes real vs fake. Adversarial min-max training.",
+    "explanation": "VAEs: stable training, smooth interpolable latent space, useful for density estimation and structured generation. Outputs tend to be blurry (ELBO encourages covering the full data distribution). GANs: sharper, more realistic samples; no explicit density model; training is unstable (mode collapse, non-convergence). In modern generative AI: diffusion models have largely superseded both for image generation. VAEs are used as latent space components (e.g. the VAE in Stable Diffusion compresses images before the diffusion process)."
+  },
+  {
+    "id": "dl-010",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "Explain positional encoding in Transformers. Why is it needed?",
+    "answer": "Self-attention is permutation-equivariant — it has no notion of order. Positional encodings add position information to token embeddings before the attention layers. Original Transformer uses sinusoidal encodings: PE(pos,2i) = sin(pos/10000^(2i/d)), PE(pos,2i+1) = cos(...).",
+    "explanation": "Sinusoidal encodings are deterministic and allow the model to generalise to sequence lengths not seen during training (relative positions can be expressed as linear transformations of the encoding vectors). Learned positional embeddings (BERT, GPT) are simpler and effective but don't generalise beyond training length. Modern LLMs use Rotary Positional Embeddings (RoPE) or ALiBi — RoPE encodes relative positions directly in the attention computation via rotation matrices, enabling better length generalisation and improving attention between distant tokens."
+  },
+  {
+    "id": "dl-011",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is knowledge distillation and when would you use it?",
+    "answer": "Knowledge distillation trains a small 'student' model to mimic a large 'teacher' model, using the teacher's soft output probabilities as training targets (rather than hard labels). Loss: αL_CE(student, hard_labels) + (1−α)L_KL(student, teacher_softmax/T) where T is a temperature parameter.",
+    "explanation": "Soft labels from the teacher encode rich inter-class similarity information (e.g. a cat image has some probability of being a dog — more informative than a one-hot label). Temperature T>1 softens the distribution, making this signal more useful. Use cases: compressing large models for mobile/edge deployment; training smaller models with performance close to the teacher; in LLM training (speculative decoding uses a small draft model and large verifier). DistilBERT achieves 97% of BERT's accuracy with 40% fewer parameters via distillation."
+  },
+  {
+    "id": "dl-012",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "Describe the U-Net architecture and its use in segmentation and diffusion models.",
+    "answer": "U-Net has an encoder (downsampling path via convolutions + pooling) and decoder (upsampling path with transposed convolutions) connected by skip connections between matching encoder and decoder layers at each resolution. Output is a pixel-wise segmentation map.",
+    "explanation": "Skip connections allow the decoder to combine high-level semantic features (from encoder bottleneck) with low-level spatial detail (from early encoder layers) — critical for precise localisation. Originally designed for biomedical image segmentation (2015). In diffusion models, U-Net is the noise prediction network: it takes a noisy image and the current timestep as inputs and predicts the noise to remove. The skip connections preserve spatial detail needed for high-quality image denoising. Modern diffusion models like SDXL replace U-Net with Transformer-based architectures (DiT)."
+  },
+  {
+    "id": "dl-013",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is a diffusion model? Explain the forward and reverse processes.",
+    "answer": "Forward process: gradually add Gaussian noise to data over T steps — q(xₜ|xₜ₋₁) = N(√(1−βₜ)xₜ₋₁, βₜI). After T steps, data becomes pure noise. Reverse process: a neural network (typically U-Net) learns to predict and remove the noise step by step: p_θ(xₜ₋₁|xₜ).",
+    "explanation": "The network is trained to predict either the noise ε, the original image x₀, or the score ∇log p(xₜ) — empirically noise prediction (ε-prediction) is most stable. DDPM (Ho et al. 2020) popularised this. DDIM enables deterministic sampling in fewer steps (~50 vs 1000). Classifier-free guidance conditions generation on text/image prompts by simultaneously training conditional and unconditional models. Stable Diffusion operates in a compressed VAE latent space (Latent Diffusion Models) for efficiency. Diffusion models now dominate image, video, and audio generation."
+  },
+  {
+    "id": "dl-014",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is mixed precision training? What hardware is it designed for?",
+    "answer": "Mixed precision training stores weights and activations in FP16 (or BF16) for the forward and backward pass, but maintains a master copy of weights in FP32 for the parameter update. Loss scaling is used to prevent underflow in FP16 gradients.",
+    "explanation": "Designed for NVIDIA Tensor Cores (V100, A100, H100) and Google TPUs, which perform FP16/BF16 matrix multiplications at 2-8× higher throughput than FP32. BF16 (bfloat16) is preferred over FP16 in modern training (same exponent range as FP32, so no loss scaling needed). Mixed precision typically gives 2-3× speedup and halves memory usage, enabling larger batch sizes or model sizes. Standard in all modern LLM and vision model training. Implemented via PyTorch AMP (automatic mixed precision)."
+  },
+  {
+    "id": "dl-015",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is gradient clipping? When and why is it applied?",
+    "answer": "Gradient clipping caps the norm (or value) of gradients before the parameter update. Global norm clipping: if ||g|| > threshold, scale g ← g · threshold/||g||. Value clipping: clip each gradient component independently to [−c, c].",
+    "explanation": "Applied when: training RNNs/LSTMs (prone to exploding gradients over long sequences); training very deep networks; in RL policy gradient methods; and when loss landscapes have sharp cliffs (common in NLP). Exploding gradients cause parameter updates that are too large, sending the model to a bad region of parameter space. Norm clipping is preferred over value clipping because it preserves gradient direction. Standard default: max_norm=1.0 in most LLM training. PyTorch: torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)."
+  },
+  {
+    "id": "dl-016",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is the lottery ticket hypothesis?",
+    "answer": "The Lottery Ticket Hypothesis (Frankle & Carlin, 2019): dense, randomly initialised networks contain sparse subnetworks ('winning tickets') that, when trained in isolation from their original initialisation, match the accuracy of the full network in a similar number of iterations.",
+    "explanation": "This has major implications: (1) Large networks may be necessary not because of their full capacity but to find the lucky sparse sub-network; (2) Suggests that we could pre-identify good sparse networks and train them directly (if we could find the winning ticket without training the full network first); (3) Has driven research in network pruning, sparse training, and initialisation. In practice, finding winning tickets currently still requires training the full network first. Related to the broader pruning literature and to observations that LLMs contain many redundant parameters."
+  },
+  {
+    "id": "dl-017",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "How does hyperparameter tuning work for neural networks at scale? Compare grid search, random search, and Bayesian optimisation.",
+    "answer": "Grid search: exhaustive over discrete grid — exponential in number of hyperparameters, impractical beyond ~3 dimensions. Random search: sample hyperparameters randomly — more efficient in high dimensions (Bergstra & Bengio 2012). Bayesian optimisation: builds a surrogate model (Gaussian Process or TPE) of the loss landscape and uses acquisition functions to choose informative next trials.",
+    "explanation": "Random search is significantly more efficient than grid search because most hyperparameters have low effective dimensionality — random search implicitly densely covers the important dimensions. Bayesian optimisation (e.g. Optuna, Hyperopt, Google Vizier) is further superior by exploiting previous trial results. At scale: Hyperband and ASHA prune poorly-performing runs early, combining random search efficiency with Bayesian-like resource allocation. Population-Based Training (DeepMind) jointly optimises hyperparameters and model weights throughout training."
+  },
+  {
+    "id": "dl-018",
+    "topic": "Deep Learning & Neural Networks",
+    "difficulty": "Senior",
+    "question": "What is the attention mechanism? How does it compute keys, queries, and values?",
+    "answer": "Queries Q, Keys K, and Values V are linear projections of the input: Q=XWQ, K=XWK, V=XWV. Attention output = softmax(QKᵀ/√dk)V. The softmax over QKᵀ produces a weight matrix where entry (i,j) is how much token i attends to token j. The output is a weighted sum of values.",
+    "explanation": "Intuition: queries are 'what am I looking for', keys are 'what do I have to offer', values are 'what I contribute if selected'. The dot product QKᵀ measures compatibility. Scaling by √dk prevents saturation in the softmax for large dk. Cross-attention uses Q from one sequence and K,V from another (e.g. decoder attending to encoder outputs). This mechanism lets the model dynamically route information between positions, unlike convolutions which have fixed local receptive fields."
+  }
+]

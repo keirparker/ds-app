@@ -1,0 +1,122 @@
+[
+  {
+    "id": "eval-001",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "Explain the ROC curve and AUC. What does AUC = 0.5 mean in practice?",
+    "answer": "ROC curve: plots True Positive Rate (sensitivity) vs False Positive Rate (1-specificity) across all classification thresholds. AUC (Area Under Curve) summarises this into a single scalar. AUC = 1.0 is perfect; AUC = 0.5 means the model is no better than random — the ROC curve is the diagonal.",
+    "explanation": "AUC has a useful probabilistic interpretation: the probability that the model ranks a randomly chosen positive example higher than a randomly chosen negative example. AUC is threshold-independent and insensitive to class imbalance (unlike accuracy). However, it can be misleading when the cost of false positives and false negatives differ significantly, or when you care only about performance at a specific operating point. AUC = 0.5 for an imbalanced dataset means the model has learned nothing despite potentially high accuracy (majority-class classifier has AUC = 0.5)."
+  },
+  {
+    "id": "eval-002",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "When should you use precision-recall curves instead of ROC curves?",
+    "answer": "Use precision-recall (PR) curves when the positive class is rare (class imbalance) and you care primarily about the model's performance on positive examples. PR AUC (average precision) is more informative than ROC AUC in these settings.",
+    "explanation": "ROC curves include true negatives in the denominator of FPR — in imbalanced settings, even a poor model can achieve high TPR with low FPR because there are so many true negatives. PR curves only consider precision (TP/(TP+FP)) and recall (TP/(TP+FN)) — they don't involve true negatives, so imbalance affects the curve directly and honestly. Example: fraud detection (0.1% fraud rate). A model that correctly identifies 90% of fraud with 10% false positive rate looks great on ROC (AUC ≈ 0.97) but may have terrible precision. The PR curve would immediately reveal this."
+  },
+  {
+    "id": "eval-003",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "What is the F-beta score? How do you choose beta?",
+    "answer": "F_β = (1 + β²) · (precision · recall) / (β² · precision + recall). F1 (β=1) weights precision and recall equally. β > 1 weights recall more heavily; β < 1 weights precision more heavily.",
+    "explanation": "Choose β based on the relative cost of false positives vs false negatives: Medical screening (cancer detection) — prefer high recall, accept false positives → β=2 (F2 score). Spam filtering — prefer high precision (don't block real email), tolerate false negatives → β=0.5. Information retrieval — typically β=1 (F1). In practice, the business context determines the trade-off. Alternatively, set a minimum threshold for the more critical metric (e.g. require recall ≥ 0.95) and then maximise precision within that constraint, rather than tuning β directly."
+  },
+  {
+    "id": "eval-004",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "How do you evaluate a ranking model? Define NDCG, MAP, and MRR.",
+    "answer": "NDCG (Normalised Discounted Cumulative Gain): measures ranking quality accounting for graded relevance and position discounting. DCG@k = Σᵢ (2^relᵢ − 1)/log₂(i+1); NDCG = DCG/idealDCG. MAP (Mean Average Precision): mean of APs across queries; AP = Σₖ (precision@k · relevance@k)/total relevant. MRR (Mean Reciprocal Rank): 1/rank_of_first_relevant, averaged across queries.",
+    "explanation": "NDCG: the most comprehensive — handles graded relevance (0-4 stars, not just relevant/not) and penalises highly relevant items ranked below less relevant ones. Use for search engines, recommenders with graded feedback. MAP: for binary relevance, averages precision at each relevant result's position — standard for IR benchmarks. MRR: simplest — only cares about where the first relevant result appears — use when users typically only care about the top result (QA, voice search). In production, pair offline metrics with online A/B tests, as offline metrics can diverge from actual user behaviour."
+  },
+  {
+    "id": "eval-005",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "What is calibration in ML models? How do you measure and fix poor calibration?",
+    "answer": "A calibrated model's predicted probability matches the true empirical frequency: if the model predicts 70% for 1000 samples, approximately 700 should be positive. Calibration is independent of discrimination (AUC). Measure with reliability diagrams and Expected Calibration Error (ECE).",
+    "explanation": "Most models are miscalibrated: SVMs produce overconfident scores; random forests cluster near 0 and 1; gradient boosted trees are often well-calibrated. Fix with: (1) Platt scaling — fit a logistic regression on raw scores; works well with small calibration sets; (2) Isotonic regression — non-parametric, more flexible, needs larger calibration set; (3) Temperature scaling — divide logits by a learned scalar T (standard for neural networks). Calibration matters for: decision thresholding, cost-sensitive prediction, combining model outputs, communicating uncertainty. Always calibrate on a held-out calibration set, not the training set."
+  },
+  {
+    "id": "eval-006",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "Explain cross-validation strategies: k-fold, stratified k-fold, and time-series split.",
+    "answer": "K-fold: split data into k folds; train on k-1, evaluate on 1, rotate; average performance over k folds. Stratified k-fold: maintain class proportions in each fold — required for imbalanced classification. Time-series split: train on past folds only, evaluate on the next fold — prevents future leakage in temporal data.",
+    "explanation": "K-fold default: k=5 or k=10 (lower variance but more compute as k increases). Stratified: mandatory for classification, especially with rare classes. Time-series: using random k-fold on temporal data causes leakage — the model may use future information implicitly. Walk-forward validation simulates deployment: train on [t=0, t=n], test on [t=n+1, t=n+h]. Group k-fold: keep all rows from the same group (user, patient, session) in the same fold — prevents correlated leakage between train and validation."
+  },
+  {
+    "id": "eval-007",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "What is the difference between offline and online evaluation metrics?",
+    "answer": "Offline metrics: computed on historical data before deployment (AUC, NDCG, F1). Fast, cheap, reproducible. Online metrics: measured on live user behaviour after deployment (click-through rate, conversion rate, revenue, engagement, session length). The true north star.",
+    "explanation": "Offline-online metric correlation is the central challenge: optimising offline metrics doesn't guarantee improvements in online metrics. Example: a recommendation model with higher NDCG@10 offline may show no uplift in clicks online if users' live behaviour differs from the historical data (non-stationarity, selection bias). Best practice: (1) Identify which offline metric correlates best with your online metric historically; (2) Use shadow deployment/interleaving to narrow the offline-online gap; (3) Always run an A/B test before shipping any model change; (4) Monitor production metrics post-launch — offline evaluation is a filter, not a guarantee."
+  },
+  {
+    "id": "eval-008",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "How would you evaluate an LLM or generative model? What metrics exist beyond perplexity?",
+    "answer": "Benchmark suites: MMLU (57-subject knowledge), HumanEval (coding), GSM8K (maths reasoning), MATH, TruthfulQA (factuality), BIG-Bench Hard. Task-specific: ROUGE/BLEU for summarisation/translation, pass@k for code. Human/LLM-as-judge: MT-Bench, Chatbot Arena (ELO ratings from human pairwise preferences). Safety: ToxiGen, BBQ (bias).",
+    "explanation": "No single metric suffices. Benchmark contamination is a known problem — models may have seen test data in pre-training. Chatbot Arena (Lmsys) provides the most reliable real-world ranking via blind human preference pairs. LLM-as-judge (GPT-4 scoring responses on helpfulness, accuracy, coherence) is increasingly used for automated evaluation of open-ended generation — cheaper than human eval, but introduces the judge model's biases. For production systems: evaluation should include domain-specific golden test sets curated by domain experts, red-team adversarial prompts, and latency/cost benchmarks."
+  },
+  {
+    "id": "eval-009",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "What is Shapley value (SHAP)? How does it explain model predictions?",
+    "answer": "SHAP (SHapley Additive exPlanations) assigns each feature a contribution value to a specific prediction. The Shapley value for feature i is the average marginal contribution of feature i across all possible coalitions of other features. Output: f(x) = E[f(x)] + Σ φᵢ where φᵢ is the SHAP value for feature i.",
+    "explanation": "Shapley values have desirable theoretical properties: efficiency (contributions sum to prediction−baseline), symmetry (equal features get equal values), dummy (zero contribution for null features), and additivity (additive across models). TreeSHAP computes exact Shapley values for tree-based models in polynomial time. KernelSHAP approximates for any model using a weighted linear regression on coalitions. Use cases: (1) Individual prediction explanation (why was this loan rejected?); (2) Global feature importance (sum of |SHAP| per feature); (3) Interaction detection (SHAP interaction values). More reliable than tree's native feature importance."
+  },
+  {
+    "id": "eval-010",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "How would you conduct a shadow deployment evaluation of a new model?",
+    "answer": "Shadow deployment: route production traffic to both the existing (champion) and new (challenger) model simultaneously. The champion's predictions are served to users; the challenger's predictions are logged but not acted upon. Compare predictions and outcomes offline.",
+    "explanation": "Benefits: (1) Evaluates challenger on real production traffic without any user impact; (2) Detects prediction divergence (how often do models disagree?); (3) Catches production bugs (latency, errors, edge cases) before go-live; (4) Accumulates ground truth for offline metric computation without an A/B test. Limitations: doesn't capture causal impact (user behaviour responds to the champion, not the challenger); can't detect position bias or user-model interaction effects. Use shadow deployment to gain confidence before A/B testing, not to replace it. Typically 1-2 weeks of shadow traffic to collect sufficient data."
+  },
+  {
+    "id": "eval-011",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "How do you detect and handle data leakage in model evaluation?",
+    "answer": "Data leakage: information from the test set (or the future) contaminates the training process, producing unrealistically optimistic evaluation metrics. Types: target leakage (features derived from the target), temporal leakage (future data in training), test set leakage (preprocessing fit on full dataset including test).",
+    "explanation": "Detection: a model that seems too good (very high AUC) should trigger investigation. Ablation studies — remove suspicious features; if performance drops dramatically, they likely leaked. Check feature correlations with target. Temporal: plot feature vs time to check if feature values 'know' about future events. Prevention: (1) Use strict time-based train/test splits for temporal data; (2) Fit all preprocessing (scalers, encoders, imputers) on training data only; (3) Implement feature engineering in pipelines (sklearn Pipeline) that respect train/test boundaries; (4) For target encoding, use out-of-fold encoding. Code review for data pipelines should be as rigorous as model code review."
+  },
+  {
+    "id": "eval-012",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "What does log loss (binary cross-entropy) measure and why does it penalise confident wrong predictions heavily?",
+    "answer": "Log loss = −(1/N) Σ [yᵢ log(ŷᵢ) + (1−yᵢ) log(1−ŷᵢ)]. It measures the average log-probability assigned to the true class. A confident wrong prediction (predicting 0.99 when y=0) incurs loss of −log(0.01) ≈ 4.6 — much larger than a moderate error.",
+    "explanation": "Log loss penalises confidence: predicting 0.5 always gives maximum entropy (loss = log(2) ≈ 0.693 regardless of outcome). As predicted probability moves toward 1 for a positive label, loss → 0; as it moves toward 1 for a negative label, loss → ∞. This property makes log loss sensitive to calibration: a model that produces well-calibrated probabilities will have lower log loss than one with the same accuracy but poor calibration. It's the natural loss for binary classification under the cross-entropy objective. Use log loss when you care about probability quality, not just ranked ordering (use AUC for ranking)."
+  },
+  {
+    "id": "eval-013",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between accuracy and balanced accuracy? When does it matter?",
+    "answer": "Accuracy = (TP + TN) / total. Balanced accuracy = 0.5·(TPR + TNR) = 0.5·(sensitivity + specificity). For balanced classes, they are equivalent. For imbalanced classes, accuracy can be misleadingly high by predicting the majority class always.",
+    "explanation": "Example: 99% negative class. Predicting all negatives gives 99% accuracy but 50% balanced accuracy (TPR=0, TNR=1). Balanced accuracy treats each class equally regardless of its frequency — it's the mean of per-class recalls. This is appropriate when both classes matter equally despite imbalance. For multi-class: macro-averaged metrics (macro F1, macro recall) similarly average per-class metrics regardless of class frequency. In medical diagnostics, missing a disease (false negative) is far more costly than a false alarm — balanced accuracy and sensitivity/specificity are more appropriate than raw accuracy."
+  },
+  {
+    "id": "eval-014",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "What is Expected Calibration Error (ECE)?",
+    "answer": "ECE = Σ_b (|B_b|/N) |acc(B_b) − conf(B_b)| where predictions are grouped into M bins by confidence; |acc(B_b) − conf(B_b)| is the absolute difference between mean accuracy and mean confidence in bin b.",
+    "explanation": "ECE measures the average weighted discrepancy between confidence and accuracy. A perfectly calibrated model has ECE = 0. Common findings: neural networks trained with cross-entropy are typically overconfident (high confidence, lower accuracy) — ECE ~5-10% before calibration, ~1-2% after temperature scaling. ECE is sensitive to the number of bins M and the binning scheme (adaptive binning — equal-sample bins — is more reliable than equal-width). Reliability diagrams visualise calibration: plot confidence vs accuracy, with a perfect model on the diagonal. Low ECE is critical for risk-sensitive applications (medical, financial)."
+  },
+  {
+    "id": "eval-015",
+    "topic": "Model Evaluation & Metrics",
+    "difficulty": "Senior",
+    "question": "How do you build and interpret a confusion matrix? Derive precision, recall, and F1 from it.",
+    "answer": "Confusion matrix (binary): rows = actual (P, N), cols = predicted (P, N). Cells: TP, FP, FN, TN. Precision = TP/(TP+FP). Recall = TP/(TP+FN). F1 = 2·(Precision·Recall)/(Precision+Recall).",
+    "explanation": "Precision: of all predicted positives, how many are actually positive? (Quality of positive predictions). Recall: of all actual positives, how many did we catch? (Coverage of positive class). F1 is the harmonic mean — it's lower than the arithmetic mean, penalising large gaps between precision and recall. For multi-class: one confusion matrix cell per (actual, predicted) pair; derive per-class P/R/F1 using one-vs-rest, then average via micro (pool all TP/FP/FN globally) or macro (average per-class metrics). Micro-F1 is dominated by large classes; macro-F1 weights all classes equally."
+  }
+]

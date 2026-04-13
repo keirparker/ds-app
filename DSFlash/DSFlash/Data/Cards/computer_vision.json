@@ -1,0 +1,98 @@
+[
+  {
+    "id": "cv-001",
+    "topic": "Computer Vision",
+    "difficulty": "Intermediate",
+    "question": "Explain the convolutional layer: what is a filter, stride, and padding?",
+    "answer": "A filter (kernel) is a small learnable weight matrix (e.g. 3×3) that slides over the input and computes dot products to produce a feature map. Stride: number of pixels the filter moves per step (stride 2 halves spatial dimensions). Padding: adding zeros around the input border to control output size (same padding preserves size; valid padding reduces it).",
+    "explanation": "Convolutions exploit three properties: local connectivity (each neuron only sees a local region), weight sharing (same filter applied everywhere), and translation equivariance (feature detection is position-agnostic). A 3×3 filter with 64 output channels and padding='same' on a 224×224×3 image produces a 224×224×64 feature map using only 3×3×3×64 = 1,728 trainable parameters — vastly more parameter-efficient than a fully-connected layer for image data."
+  },
+  {
+    "id": "cv-002",
+    "topic": "Computer Vision",
+    "difficulty": "Intermediate",
+    "question": "What is transfer learning in CV? Describe ImageNet pre-training and when to fine-tune vs feature-extract.",
+    "answer": "Transfer learning: initialise model with ImageNet-pre-trained weights (trained on 1.2M images, 1000 classes). Feature extraction: freeze all conv layers, train only the new classification head — use when target dataset is small and similar to ImageNet. Fine-tuning: unfreeze some or all layers and train with small learning rate — use when dataset is larger or domain-specific.",
+    "explanation": "Early CNN layers learn universal features (edges, textures) that transfer broadly; later layers learn dataset-specific features. The decision: (1) Small dataset, similar domain → feature extraction; (2) Large dataset, similar domain → fine-tune all layers; (3) Small dataset, different domain → fine-tune only later layers; (4) Large dataset, different domain → fine-tune all or train from scratch. Medical imaging, satellite imagery, and microscopy all benefit from fine-tuning on top of ImageNet weights despite domain differences. Modern foundation models (CLIP, DINOv2) are often better starting points than supervised ImageNet models."
+  },
+  {
+    "id": "cv-003",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "How does YOLO object detection work? What trade-off does it make vs two-stage detectors?",
+    "answer": "YOLO (You Only Look Once) divides the image into an S×S grid. Each cell predicts B bounding boxes (x, y, w, h, confidence) and C class probabilities simultaneously in a single forward pass — detection as a regression problem.",
+    "explanation": "Two-stage detectors (Faster RCNN): Stage 1 (Region Proposal Network) proposes candidate regions; Stage 2 classifies each region. More accurate, slower (separate passes per proposal). YOLO's single-stage approach is 3-100× faster, making it suitable for real-time video. Trade-off: lower accuracy on small objects and densely overlapping objects (one cell predicts one dominant object). YOLOv8/v9/v10 have narrowed the accuracy gap substantially while maintaining speed. Non-maximum suppression (NMS) post-processes multiple overlapping predictions."
+  },
+  {
+    "id": "cv-004",
+    "topic": "Computer Vision",
+    "difficulty": "Intermediate",
+    "question": "What is non-maximum suppression (NMS) and where is it used?",
+    "answer": "NMS eliminates duplicate bounding box predictions. Algorithm: sort boxes by confidence score; keep the highest-confidence box; remove all other boxes with IoU > threshold with the kept box; repeat for remaining boxes.",
+    "explanation": "Object detectors often predict multiple overlapping boxes for the same object. NMS selects the most confident non-overlapping predictions. IoU (Intersection over Union) = area of overlap / area of union — measures box similarity. Standard threshold: 0.5 IoU. Limitation: NMS fails in dense crowd scenes (legitimate nearby boxes suppressed). Soft-NMS decays confidence of suppressed boxes rather than removing them. DIoU-NMS uses distance-based IoU. NMS is a post-processing step applied after the model's raw predictions."
+  },
+  {
+    "id": "cv-005",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "Explain the Vision Transformer (ViT). How does it differ from a CNN?",
+    "answer": "ViT divides an image into fixed-size patches (e.g. 16×16), flattens and linearly embeds each patch, prepends a [CLS] token, adds positional embeddings, then processes with a standard Transformer encoder. Classification uses the [CLS] token output.",
+    "explanation": "CNNs have built-in translation equivariance and local inductive biases from convolutions — they need less data to learn. ViT has no inductive bias about locality — patches attend to all other patches from the first layer. This makes ViT worse than CNNs on small datasets but better on very large datasets (ViT-G trained on JFT-3B outperforms the best CNNs). Hybrid approaches (Swin Transformer, ConvNeXt) combine locality from convolution-like windows with global attention to get the best of both. ViTs have become dominant for vision foundation models and are used as image encoders in multimodal LLMs."
+  },
+  {
+    "id": "cv-006",
+    "topic": "Computer Vision",
+    "difficulty": "Intermediate",
+    "question": "What is image segmentation? Compare semantic, instance, and panoptic segmentation.",
+    "answer": "Semantic segmentation: classify every pixel into a category (no distinction between different objects of the same class). Instance segmentation: detect and segment each individual object instance separately. Panoptic segmentation: unified — semantic for background ('stuff'), instance for foreground objects ('things').",
+    "explanation": "Semantic: Fully Convolutional Networks, DeepLab. Example: all pixels labelled 'road', 'sky', 'building'. Instance: Mask RCNN adds a mask head to Faster RCNN. Example: 'person_1', 'person_2', 'car_1'. Panoptic: combines both in a single model. Example: 'road' (semantic) + 'person_1', 'person_2' (instance). Applications: autonomous driving (panoptic), medical image analysis (semantic), robotics (instance). SAM (Segment Anything Model, Meta 2023) is a foundation model that can segment any object from point/box/text prompts."
+  },
+  {
+    "id": "cv-007",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "Explain the CLIP model. What training objective does it use?",
+    "answer": "CLIP (Contrastive Language-Image Pre-training, OpenAI 2021) trains an image encoder and text encoder jointly on 400M (image, caption) pairs using contrastive learning. For a batch of N pairs, maximise cosine similarity of N correct pairs and minimise similarity of N²−N incorrect pairs (InfoNCE loss).",
+    "explanation": "CLIP learns a shared embedding space where matching image-text pairs are nearby and mismatches are far apart. This enables zero-shot classification: encode the image, encode text prompts like 'a photo of a dog', take the closest text label. CLIP achieves competitive ImageNet accuracy without any ImageNet training. Its shared embedding space powers DALL-E and Stable Diffusion (text conditioning), multimodal LLMs (LLaVA, GPT-4V use CLIP-like encoders), and cross-modal retrieval. DINOv2 (Meta) is a CLIP-free vision-only foundation model using self-supervised DINO objectives, often better for dense prediction tasks."
+  },
+  {
+    "id": "cv-008",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "What is contrastive learning? How does SimCLR work?",
+    "answer": "Contrastive learning trains representations such that similar (positive) pairs are close and dissimilar (negative) pairs are far in embedding space — without labels. SimCLR: augment each image twice (positive pair), treat all other images in the batch as negatives, maximise agreement between the two augmented views using NT-Xent loss.",
+    "explanation": "SimCLR pipeline: image → two augmentations (crop, colour jitter, blur, grayscale) → encoder f → projection head g → contrastive loss. The projection head (discarded at downstream task) helps the encoder not overfit to the contrastive objective. Requires large batch sizes (4096+) to provide enough negatives. MoCo (momentum contrast) maintains a large queue of negatives to decouple batch size from number of negatives. BYOL and SimSiam showed contrastive learning can work without explicit negatives using stop-gradient tricks. SSL representations from SimCLR/MoCo/DINO are now competitive with supervised ImageNet pre-training for many downstream tasks."
+  },
+  {
+    "id": "cv-009",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "What is the Masked Autoencoder (MAE)? How does it apply self-supervised learning to vision?",
+    "answer": "MAE (He et al. 2022) masks a large proportion (75%) of image patches at random, then trains a ViT encoder-decoder to reconstruct the masked patches in pixel space. Only visible patches are fed to the encoder; a lightweight decoder reconstructs from encoder outputs + mask tokens.",
+    "explanation": "Key insight: masking 75% of patches makes the pre-training task hard enough to require learning rich semantics (unlike NLP where masking 15% is already challenging). Processing only 25% of patches in the encoder makes MAE 3× faster than processing all patches. The resulting representations rival supervised ImageNet pre-training on downstream tasks, and scale well with model size. MAE is the vision analogue of BERT's masked language modelling. Variants: VideoMAE (video), AudioMAE (audio), showing the power of masked modelling as a universal SSL objective."
+  },
+  {
+    "id": "cv-010",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "What is a GAN for image generation? What is mode collapse?",
+    "answer": "A GAN consists of a Generator G(z) that maps random noise z to images, and a Discriminator D(x) that classifies real vs generated images. They play a minimax game: G minimises log(1-D(G(z))); D maximises log(D(x)) + log(1-D(G(z))). At Nash equilibrium, G produces samples indistinguishable from real data.",
+    "explanation": "Mode collapse: the generator finds a small set of outputs that fool the discriminator and produces only those — a failure of diversity. Cause: G finds a local 'exploit' against the current D, and D adapts too slowly. Solutions: Wasserstein GAN (gradient penalty, more stable training), progressive growing (StyleGAN), minibatch discrimination, spectral normalisation. StyleGAN2/3 produce photorealistic faces and are the gold standard for GAN quality. In 2023+, diffusion models have largely superseded GANs for generation due to better mode coverage, training stability, and ease of conditioning."
+  },
+  {
+    "id": "cv-011",
+    "topic": "Computer Vision",
+    "difficulty": "Intermediate",
+    "question": "What is data augmentation in CV? List eight augmentation strategies.",
+    "answer": "Data augmentation artificially expands the training set by applying label-preserving transformations to images, reducing overfitting and improving generalisation.",
+    "explanation": "Eight strategies: (1) Random crop + resize — most impactful single augmentation; (2) Horizontal flip — free label-preserving for most natural images; (3) Colour jitter (brightness, contrast, saturation, hue); (4) Random rotation; (5) Gaussian blur; (6) CutOut/Random Erasing — mask random rectangles; (7) MixUp — blend two images and their labels linearly; (8) CutMix — cut and paste patches between images with proportional label mixing. RandAugment and AugMix learn augmentation policies automatically. At test time, TTA (test-time augmentation) averages predictions over multiple augmented views."
+  },
+  {
+    "id": "cv-012",
+    "topic": "Computer Vision",
+    "difficulty": "Senior",
+    "question": "What is a diffusion model applied to images (e.g. Stable Diffusion)? Explain the denoising process.",
+    "answer": "Latent Diffusion Models (LDMs) compress images to a low-dimensional latent space via a VAE encoder, then apply the diffusion process in latent space. Denoising: a U-Net iteratively denoises a random noise tensor z_T → z_{T-1} → ... → z_0, conditioned on text via cross-attention with CLIP text embeddings. Decode z_0 with VAE decoder to get the image.",
+    "explanation": "Operating in latent space (8× spatially compressed) reduces compute by ~64× vs pixel-space diffusion. DDPM training: add noise to a real latent z_0 to get z_t, train U-Net to predict the added noise. Inference: start from z_T ~ N(0,I), iteratively apply the U-Net to denoise (DDIM: 50 steps vs 1000 for DDPM). Classifier-free guidance (CFG): train both conditional and unconditional models; at inference, extrapolate away from unconditional prediction — higher guidance scale = more prompt adherence but less diversity. SDXL, FLUX, and newer models scale this architecture with DiT (Diffusion Transformer) replacing the U-Net."
+  }
+]

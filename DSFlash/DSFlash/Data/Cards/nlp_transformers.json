@@ -1,0 +1,122 @@
+[
+  {
+    "id": "nlp-001",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "Explain the original Transformer architecture (Attention is All You Need). What problem was it designed to solve?",
+    "answer": "The Transformer (Vaswani et al. 2017) replaced RNNs for sequence-to-sequence tasks using only attention and feed-forward layers. Encoder: N×(multi-head self-attention + FFN + LayerNorm). Decoder: N×(masked self-attention + cross-attention + FFN). Designed for machine translation.",
+    "explanation": "RNNs process sequences sequentially — O(n) serial steps prevents parallelisation and makes learning long-range dependencies difficult. The Transformer processes all positions simultaneously (O(1) sequential steps), enables full parallelisation during training, and captures arbitrary-distance dependencies in one attention step. The trade-off is O(n²) memory/compute in sequence length. This fundamental architecture change enabled training on massively larger datasets and spawned the modern era of pre-trained language models."
+  },
+  {
+    "id": "nlp-002",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is BERT? How does masked language modelling differ from autoregressive pre-training?",
+    "answer": "BERT (Bidirectional Encoder Representations from Transformers): encoder-only Transformer pre-trained with masked language modelling (MLM: predict 15% randomly masked tokens) and next sentence prediction. Autoregressive (GPT-style): predict the next token given all previous tokens — causal/unidirectional.",
+    "explanation": "BERT's bidirectionality makes it powerful for understanding tasks (classification, NER, QA) — each token attends to both past and future context. Autoregressive models are naturally suited to generation — they produce text token by token. BERT-style pre-training cannot be used directly for generation (no causal masking). The two camps dominated the 2019-2022 era; today, decoder-only models (GPT-4, Claude, LLaMA) dominate both generation and understanding due to scale — very large autoregressive models can do understanding tasks via prompting."
+  },
+  {
+    "id": "nlp-003",
+    "topic": "NLP & Transformers",
+    "difficulty": "Intermediate",
+    "question": "Explain byte-pair encoding (BPE) tokenization. Why is it preferred over word-level tokenization?",
+    "answer": "BPE starts with a character-level vocabulary and iteratively merges the most frequent adjacent pair of tokens until reaching the target vocabulary size (e.g. 50k). The result is a sub-word vocabulary that balances word-level and character-level representations.",
+    "explanation": "Word-level tokenization: large vocabulary (500k+), out-of-vocabulary issues for rare words, can't handle morphologically rich languages. Character-level: tiny vocabulary but very long sequences. BPE balances both: common words become single tokens ('the'), rare words split into sub-words ('unhappiness' → 'un', 'happiness'). No OOV problem. Works across languages. GPT-2/3/4 use BPE; BERT uses WordPiece (similar); SentencePiece is a language-agnostic variant. Vocabulary size is a key hyperparameter — larger vocabulary → shorter sequences (faster) but more embedding parameters."
+  },
+  {
+    "id": "nlp-004",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is the difference between encoder-only, decoder-only, and encoder-decoder Transformer architectures? Give examples of each.",
+    "answer": "Encoder-only: full bidirectional attention, no causal masking. Best for understanding tasks. Examples: BERT, RoBERTa, DeBERTa. Decoder-only: causal (left-to-right) masking. Best for generation. Examples: GPT series, LLaMA, Mistral, Claude. Encoder-decoder: encoder processes input, decoder generates output attending to encoder. Best for seq2seq. Examples: T5, BART, mT5.",
+    "explanation": "Encoder-only models produce rich contextual representations of input — ideal for classification, NER, embedding generation. Decoder-only models generate text autoregressively — ideal for chatbots, code generation, summarisation. Encoder-decoder models explicitly separate input encoding from output generation — ideal for translation, document summarisation, abstractive QA. The trend since 2022 has been consolidation around decoder-only at scale: very large autoregressive models handle all task types via instruction tuning, outperforming specialised architectures."
+  },
+  {
+    "id": "nlp-005",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "Describe the RLHF pipeline used to align GPT-style models.",
+    "answer": "Step 1: Supervised fine-tuning (SFT) — fine-tune the base model on curated demonstrations. Step 2: Reward model training — collect human preference data (ranking model outputs A vs B); train a reward model RM to score responses. Step 3: PPO fine-tuning — use RL (PPO) to optimise the policy model to maximise RM score, with a KL penalty to prevent deviation from SFT model.",
+    "explanation": "The KL penalty prevents the RL policy from collapsing to adversarial outputs that fool the reward model ('reward hacking'). The reward model is the bottleneck — it can only be as aligned as human raters. DPO (Direct Preference Optimisation, 2023) bypasses the explicit RM entirely by reformulating RL as a supervised learning problem on preferences, making it simpler and more stable. Constitutional AI (Anthropic) adds AI-generated feedback (RLAIF) to scale human feedback. RLHF is what turns a capable but unaligned base model into a helpful, safe assistant."
+  },
+  {
+    "id": "nlp-006",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is RAG (Retrieval-Augmented Generation) and what problem does it solve?",
+    "answer": "RAG augments an LLM's generation with retrieved documents: given a query, retrieve relevant passages from an external corpus using vector search, then provide them as context to the LLM along with the query. The LLM generates an answer grounded in retrieved evidence.",
+    "explanation": "Problems RAG solves: (1) Knowledge cutoff — LLMs can access up-to-date information without retraining; (2) Hallucination — grounding generation in retrieved facts reduces fabrication; (3) Long-tail knowledge — information not well represented in training data can be retrieved; (4) Auditability — sources can be cited. Limitations: retrieval quality is a bottleneck; the LLM must faithfully use retrieved context; multi-hop reasoning requires multiple retrieval rounds. Advanced RAG: HyDE (hypothetical document embeddings), iterative retrieval, re-ranking with cross-encoders."
+  },
+  {
+    "id": "nlp-007",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "Explain rotary positional embeddings (RoPE) and why they are preferred in modern LLMs.",
+    "answer": "RoPE encodes position by rotating the query and key vectors in 2D subspaces at different frequencies for each dimension: q_rotated = R(pos)·q. The dot product q·k then depends only on the relative position (pos_q − pos_k), not absolute positions.",
+    "explanation": "Advantages over absolute positional encodings: (1) Relative position awareness — attention scores reflect token proximity, not absolute sequence position; (2) Length generalisation — RoPE naturally extends to sequences longer than seen during training (especially with RoPE scaling/YaRN); (3) No learnable parameters; (4) Compatible with FlashAttention. Used in LLaMA, Mistral, Qwen, Gemma, and most modern open-source LLMs. ALiBi (linear attention bias) is an alternative: adds a position-based penalty to attention logits, also enabling length extrapolation but with a different trade-off."
+  },
+  {
+    "id": "nlp-008",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "Compare fine-tuning, prompt engineering, and in-context learning in terms of cost and performance trade-offs.",
+    "answer": "Fine-tuning: update model weights on task-specific data. Highest accuracy, highest compute cost, inflexible once trained. Prompt engineering: craft input prompts to elicit desired behaviour — zero cost, quick iteration, limited by model capability. In-context learning (ICL): provide examples in the prompt — no weight updates, effective for few-shot scenarios, limited by context window.",
+    "explanation": "Cost hierarchy: fine-tuning >> ICL >> prompting. Performance hierarchy (typically): fine-tuning > ICL > zero-shot prompting, but very large models with strong ICL can beat fine-tuned smaller models. Parameter-efficient fine-tuning (LoRA, QLoRA) closes the cost gap substantially — LoRA fine-tuning costs ~10% of full fine-tuning. For production: use prompting first, ICL for few-shot gains, LoRA fine-tuning if accuracy is still insufficient, full fine-tuning only when you have large domain-specific datasets and very high accuracy requirements."
+  },
+  {
+    "id": "nlp-009",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is LoRA (Low-Rank Adaptation)? How does it enable parameter-efficient fine-tuning?",
+    "answer": "LoRA freezes pre-trained model weights W₀ and injects trainable low-rank decomposition matrices: W = W₀ + BA, where B ∈ R^(d×r), A ∈ R^(r×k), and rank r << min(d,k). Only A and B (totalling r(d+k) parameters) are trained.",
+    "explanation": "Hypothesis: weight updates during fine-tuning have low intrinsic rank. LoRA exploits this: rather than updating d×k parameters, it trains r(d+k) where r is typically 4-16 (vs d,k = thousands). Reduces trainable parameters by 10,000× for large models, enabling fine-tuning on a single GPU. At inference, BA is merged into W₀ with no added latency. QLoRA extends LoRA by quantising the base model to 4-bit (NF4), reducing VRAM from ~80GB to ~6GB for 7B models. LoRA is applied to attention projection matrices (Q, K, V, O) and sometimes FFN layers. Now standard for LLM customisation."
+  },
+  {
+    "id": "nlp-010",
+    "topic": "NLP & Transformers",
+    "difficulty": "Intermediate",
+    "question": "What is perplexity as a language model evaluation metric? What are its limitations?",
+    "answer": "Perplexity = exp(−(1/N)Σlog P(wᵢ|w₁...wᵢ₋₁)) — the exponentiated average negative log-likelihood per token. Intuitively: the model's average 'surprise' per token. Lower is better. A perplexity of k means the model is as uncertain as if choosing uniformly from k options at each step.",
+    "explanation": "Limitations: (1) Not directly interpretable as task performance — a model can have low perplexity but poor instruction-following; (2) Tokenizer-dependent — models with different vocabularies are not directly comparable; (3) Doesn't measure factual accuracy, reasoning, or alignment; (4) Can be gamed by hedging predictions. In modern LLM evaluation, perplexity is supplemented with benchmarks (MMLU, HumanEval, GSM8K), human preference evaluation, and red-teaming. Perplexity remains useful as a cheap proxy for training monitoring and for comparing models with the same tokenizer."
+  },
+  {
+    "id": "nlp-011",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What are hallucinations in LLMs and what techniques reduce them?",
+    "answer": "Hallucinations: LLMs generating plausible-sounding but factually incorrect or fabricated information — citing non-existent papers, inventing statistics, misattributing quotes.",
+    "explanation": "Causes: training objective (next-token prediction) doesn't reward factual accuracy; parametric knowledge is imperfect; models prefer fluent outputs even when uncertain. Mitigation: (1) RAG — ground generation in retrieved facts; (2) Chain-of-thought prompting — encourages step-by-step reasoning before committing to an answer; (3) Temperature reduction — lower temperature → more conservative outputs; (4) Uncertainty calibration + abstention — model says 'I don't know' when uncertain; (5) RLHF with factuality reward; (6) Factuality fine-tuning (FactTune); (7) Tool use — LLM calls a search API rather than relying on parametric memory. Hallucination remains an open research problem."
+  },
+  {
+    "id": "nlp-012",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is semantic search? How do vector databases enable it at scale?",
+    "answer": "Semantic search retrieves documents based on meaning rather than keyword overlap. Documents and queries are encoded as dense vectors (embeddings) using a model like sentence-transformers/E5/OpenAI text-embedding. Cosine similarity or dot product finds the nearest neighbours.",
+    "explanation": "Vector databases (Pinecone, Weaviate, Qdrant, pgvector) store and query millions/billions of embeddings using approximate nearest neighbour (ANN) algorithms: HNSW (Hierarchical Navigable Small World) builds a multi-layer proximity graph for O(log n) queries; IVF (Inverted File Index) clusters vectors and only searches nearby clusters. ANN trades small accuracy loss for orders-of-magnitude speed. In production RAG: embed your corpus once, store in vector DB, embed query at runtime, retrieve top-k, pass to LLM. Hybrid search (BM25 + dense retrieval + RRF fusion) typically outperforms pure dense retrieval."
+  },
+  {
+    "id": "nlp-013",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is instruction tuning and why is it critical for chat-style models?",
+    "answer": "Instruction tuning fine-tunes a pre-trained language model on a dataset of (instruction, output) pairs covering diverse tasks in natural language. The model learns to follow instructions rather than just predict the next token in a document.",
+    "explanation": "Pre-trained base models are not useful for users out-of-the-box — they complete text, not follow instructions. Instruction tuning transforms a document completer into an instruction follower. Key datasets: FLAN (fine-tuned language net — 60+ tasks), Alpaca (GPT-generated instructions), ShareGPT (real conversations). Findings: training on diverse tasks improves zero-shot generalisation to unseen tasks (emergent instruction following). Combined with RLHF, instruction tuning is the recipe for ChatGPT-style assistants. Data quality matters more than quantity — a small high-quality instruction dataset can outperform a large noisy one."
+  },
+  {
+    "id": "nlp-014",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "Describe Flash Attention. What bottleneck does it address?",
+    "answer": "FlashAttention (Dao et al. 2022) is an IO-aware exact attention algorithm that computes standard attention without materialising the full N×N attention matrix in HBM (high-bandwidth GPU memory), using tiling and online softmax computation.",
+    "explanation": "Bottleneck: standard attention writes the N×N attention matrix (O(N²) memory) to slow HBM and reads it back. For N=4096, this matrix is 16GB per head at FP32. IO bandwidth is the bottleneck, not FLOPs. FlashAttention tiles the computation into SRAM-resident blocks, fusing the softmax + matmul operations so the attention matrix never exists in full in HBM. Result: 2-4× faster attention, 5-20× less memory, no approximation. FlashAttention-2 and -3 further optimise for A100/H100 architectures. Now the default attention implementation in all major frameworks. Enables training with much longer context windows economically."
+  },
+  {
+    "id": "nlp-015",
+    "topic": "NLP & Transformers",
+    "difficulty": "Senior",
+    "question": "What is sparse vs dense retrieval in RAG systems? When do you use each?",
+    "answer": "Sparse retrieval (BM25, TF-IDF): keyword-based, exact term matching, fast, no GPU needed. Dense retrieval: bi-encoder encodes query and document into dense vectors, retrieves by semantic similarity. Slow to index, requires GPU for encoding, handles synonyms/paraphrases well.",
+    "explanation": "Sparse excels on exact-match queries ('invoice number 12345'), acronyms, named entities, and out-of-domain queries. Dense excels on semantic equivalence ('heart attack' ≡ 'myocardial infarction') and paraphrase-heavy queries. Best practice: hybrid retrieval — run both BM25 and dense retrieval in parallel, combine results with Reciprocal Rank Fusion (RRF). Then apply a cross-encoder re-ranker to the top-k results for final ranking (cross-encoders jointly encode query+document for more accurate but slower scoring). The ColBERT model achieves late interaction dense retrieval with sparse-like scalability."
+  }
+]

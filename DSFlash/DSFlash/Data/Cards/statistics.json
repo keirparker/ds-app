@@ -1,0 +1,146 @@
+[
+  {
+    "id": "stat-001",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "What is the Central Limit Theorem and why is it foundational to statistical inference?",
+    "answer": "The CLT states that the sampling distribution of the sample mean approaches a normal distribution as sample size n increases, regardless of the population's distribution (given finite variance). Typically n ≥ 30 is sufficient.",
+    "explanation": "This is foundational because it justifies using z-tests and t-tests on non-normal data at scale. It underpins confidence intervals and hypothesis tests — without it, we couldn't make probability statements about estimates from arbitrary distributions."
+  },
+  {
+    "id": "stat-002",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "Explain the difference between a p-value and a confidence interval. Which is more informative?",
+    "answer": "A p-value is the probability of observing a test statistic as extreme as the one observed, assuming the null hypothesis is true. A 95% CI is a range that, under repeated sampling, would contain the true parameter 95% of the time.",
+    "explanation": "CIs are generally more informative: they convey both statistical significance (does it exclude the null?) and practical significance (the magnitude and precision of the effect). A p-value alone says nothing about effect size. The two are mathematically equivalent for two-sided tests."
+  },
+  {
+    "id": "stat-003",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "What is Bayesian inference and how does it differ from frequentist statistics?",
+    "answer": "Bayesian inference treats parameters as random variables with prior distributions, then updates beliefs using observed data to produce a posterior: P(θ|X) ∝ P(X|θ) · P(θ). Frequentist statistics treats parameters as fixed unknowns and probability as long-run frequency.",
+    "explanation": "Bayesian methods naturally incorporate prior knowledge, produce full posterior distributions (richer than point estimates), and allow direct probability statements like 'there is a 90% probability the effect is positive.' They're more computationally expensive but increasingly practical with modern hardware. Frequentist methods dominate A/B testing due to speed and interpretability."
+  },
+  {
+    "id": "stat-004",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "Define Type I and Type II errors and explain how to balance them in a product context.",
+    "answer": "Type I (α): False positive — rejecting a true null hypothesis. Type II (β): False negative — failing to reject a false null. Power = 1 − β. You control α by setting the significance threshold; β by adjusting sample size.",
+    "explanation": "In product experiments, a Type I error means shipping a feature with no real effect (wasted engineering effort, user disruption). A Type II error means missing a genuinely beneficial feature. The right balance depends on the cost of each: high-risk, irreversible changes warrant very low α; cheap reversible tests can tolerate higher α to reduce required sample size."
+  },
+  {
+    "id": "stat-005",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "What is statistical power and how do you calculate the required sample size for an experiment?",
+    "answer": "Power is the probability of correctly detecting a true effect of a given size: Power = P(reject H₀ | H₁ true) = 1 − β. Sample size formula: n = 2σ²(z_α/2 + z_β)² / δ² for two-sample tests, where δ is the minimum detectable effect and σ² is variance.",
+    "explanation": "Typical targets: 80% or 90% power, α = 0.05. Power increases with sample size, larger effect size, and lower variance. In practice, use power calculators or simulation. Underpowered studies are the leading cause of non-replicable results — a major issue in data science teams."
+  },
+  {
+    "id": "stat-006",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "Explain maximum likelihood estimation (MLE). How is it used to fit logistic regression?",
+    "answer": "MLE finds parameters θ that maximise the likelihood L(θ|X) = P(X|θ). In practice we maximise the log-likelihood. For logistic regression, log-likelihood = Σ[yᵢ log(ŷᵢ) + (1−yᵢ) log(1−ŷᵢ)], which is minimised (as negative log-likelihood) using gradient descent.",
+    "explanation": "MLE has desirable asymptotic properties: it's consistent, asymptotically efficient (achieves Cramér-Rao bound), and asymptotically normal. Regularised logistic regression adds a penalty term (L1 or L2) to the log-likelihood, making it MAP estimation rather than pure MLE."
+  },
+  {
+    "id": "stat-007",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between variance and bias in the context of statistical estimators?",
+    "answer": "Bias = E[θ̂] − θ: how far the estimator's expected value is from the true parameter. Variance = E[(θ̂ − E[θ̂])²]: how much the estimator fluctuates across samples. MSE = Bias² + Variance.",
+    "explanation": "An unbiased estimator with high variance can have worse MSE than a slightly biased estimator with much lower variance — this is the bias-variance trade-off in estimation theory, the same principle that governs ML model complexity. Ridge regression deliberately introduces bias to reduce variance and improve prediction MSE."
+  },
+  {
+    "id": "stat-008",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "Describe the bootstrap method. When would you use it over analytical confidence intervals?",
+    "answer": "Bootstrap resamples the dataset with replacement B times, computes the statistic on each resample, and uses the empirical distribution of that statistic to construct CIs (percentile or BCa method). No distributional assumptions required.",
+    "explanation": "Use bootstrap when: the statistic has no closed-form sampling distribution (e.g. median, correlation ratios), sample size is small, the population distribution is non-normal, or you need CIs for complex model parameters. Downside: computationally intensive and less accurate for very small n or extreme quantiles."
+  },
+  {
+    "id": "stat-009",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "What is a conjugate prior? Give an example with the Beta-Binomial model.",
+    "answer": "A conjugate prior is one where the posterior is in the same distribution family as the prior. For a Binomial likelihood (k successes in n trials), the Beta prior is conjugate: Beta(α,β) prior + Binomial likelihood → Beta(α+k, β+n−k) posterior.",
+    "explanation": "This is extremely useful computationally — no MCMC needed. In practice, you use Beta-Binomial for click-through rates: start with a weak prior (e.g. Beta(1,1) = uniform) and update as impressions accumulate. The posterior mean (α+k)/(α+β+n) is a regularised estimate that shrinks toward the prior mean when data is scarce."
+  },
+  {
+    "id": "stat-010",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "Distinguish the Law of Large Numbers from the Central Limit Theorem.",
+    "answer": "LLN: As n→∞, the sample mean X̄ converges in probability to the true mean μ. It says where the estimate goes. CLT: The normalised deviation √n(X̄ − μ) converges in distribution to N(0,σ²). It describes the shape and rate of convergence.",
+    "explanation": "LLN guarantees consistency; CLT enables quantifying uncertainty (CIs, hypothesis tests). LLN holds under weaker conditions (only requires finite mean); CLT requires finite variance. In practice: LLN justifies using empirical averages; CLT justifies treating them as approximately normal for inference."
+  },
+  {
+    "id": "stat-011",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "What is KL divergence and when would you use it versus Jensen-Shannon divergence?",
+    "answer": "KL divergence: KL(P||Q) = Σ P(x) log(P(x)/Q(x)). It is asymmetric: KL(P||Q) ≠ KL(Q||P). Jensen-Shannon divergence: JSD(P,Q) = ½KL(P||M) + ½KL(Q||M) where M = (P+Q)/2. JSD is symmetric and bounded [0,1].",
+    "explanation": "KL is used in VI (variational inference), VAEs (ELBO = reconstruction − KL), and information theory. The asymmetry matters: minimising KL(P||Q) w.r.t. Q is 'mode-seeking' (Q concentrates on modes of P); minimising KL(Q||P) is 'mean-seeking'. JSD is preferred when you need a true metric — e.g. measuring data drift between distributions, or as GAN loss (original GAN minimises JSD)."
+  },
+  {
+    "id": "stat-012",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "What are heavy-tailed distributions and why do they matter in machine learning?",
+    "answer": "Heavy-tailed distributions have tail probabilities that decay polynomially (e.g. Pareto, Student-t, Cauchy) rather than exponentially (Gaussian). Their moments may not exist — Cauchy has undefined mean and variance.",
+    "explanation": "They matter in ML because: (1) many real-world signals are heavy-tailed (income, web traffic, NLP token frequencies) so Gaussian assumptions break down; (2) gradient noise in stochastic optimisation can be heavy-tailed, explaining why SGD generalises better than full-batch; (3) extreme events dominate expected loss under fat tails, impacting risk-sensitive applications (fraud, finance); (4) standard CLT requires finite variance — not guaranteed for heavy-tailed data."
+  },
+  {
+    "id": "stat-013",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "Explain Markov Chain Monte Carlo (MCMC). What problem does it solve?",
+    "answer": "MCMC draws samples from a target distribution P(θ|X) that is intractable to compute directly. A Markov chain is constructed whose stationary distribution is P(θ|X). After a burn-in period, samples from the chain approximate the posterior.",
+    "explanation": "Classic algorithms: Metropolis-Hastings (propose + accept/reject), Gibbs sampling (sample each parameter conditioned on others), HMC (Hamiltonian Monte Carlo — uses gradient information for efficient exploration, as used in Stan). MCMC solves the problem of Bayesian inference in high-dimensional models where conjugacy isn't available. Drawbacks: slow convergence, requires burn-in, hard to parallelise. Modern alternatives: variational inference (faster, approximate)."
+  },
+  {
+    "id": "stat-014",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "Explain the multiple comparisons problem and list three correction methods.",
+    "answer": "When testing m hypotheses simultaneously, the probability of at least one false positive (familywise error rate) inflates: FWER = 1 − (1−α)^m. With m=20 tests at α=0.05, FWER ≈ 64%.",
+    "explanation": "Corrections: (1) Bonferroni — divide α by m; very conservative, controls FWER strongly. (2) Holm-Bonferroni — step-down procedure, less conservative than Bonferroni. (3) Benjamini-Hochberg (BH) — controls false discovery rate (FDR = expected proportion of false positives among rejections) at level q; less conservative, preferred in genomics/large-scale testing. FDR control is standard in experimentation platforms running many concurrent tests."
+  },
+  {
+    "id": "stat-015",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "What is heteroscedasticity and how do you detect and handle it in regression?",
+    "answer": "Heteroscedasticity: the variance of regression residuals is non-constant across values of the predictor. Violates OLS assumptions (constant variance), inflating standard errors and distorting inference.",
+    "explanation": "Detection: Breusch-Pagan test, White test, or visual residual plots (residuals vs fitted — fan shapes indicate heteroscedasticity). Handling: (1) WLS (weighted least squares) — weight observations inversely proportional to variance; (2) log-transform the target to stabilise variance; (3) robust standard errors (HC3/sandwich estimators) — keep OLS estimates but correct SEs without reweighting; (4) GLMs (e.g. Poisson for counts) where variance is modelled as a function of the mean."
+  },
+  {
+    "id": "stat-016",
+    "topic": "Statistics & Probability",
+    "difficulty": "Intermediate",
+    "question": "Distinguish between parametric and non-parametric tests. When do you choose each?",
+    "answer": "Parametric tests assume the data follows a specific distribution (usually normal) and test parameters of that distribution (e.g. t-test, ANOVA, Pearson correlation). Non-parametric tests make no distributional assumptions and typically operate on ranks (e.g. Mann-Whitney U, Kruskal-Wallis, Spearman).",
+    "explanation": "Choose parametric when: data is approximately normal, sample size is large (CLT kicks in), or you need higher statistical power (parametric tests are more powerful when assumptions hold). Choose non-parametric when: data is ordinal, heavily skewed, or small samples with non-normal distribution, or when outliers are prevalent. In practice with large n, CLT means parametric tests are robust even to non-normality."
+  },
+  {
+    "id": "stat-017",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "What is a sufficient statistic? Give an example.",
+    "answer": "A statistic T(X) is sufficient for parameter θ if the conditional distribution of the sample X given T(X) does not depend on θ. Intuitively, T(X) captures all information about θ in the data.",
+    "explanation": "Example: For iid Bernoulli(p) trials, T = Σxᵢ (total successes) is sufficient for p. Knowing the total successes, the order of individual outcomes gives no additional information about p. Sufficient statistics underpin MLE (MLEs are functions of sufficient statistics), Rao-Blackwell theorem (conditioning on sufficient statistics can only improve estimators), and exponential family distributions, which always have finite-dimensional sufficient statistics."
+  },
+  {
+    "id": "stat-018",
+    "topic": "Statistics & Probability",
+    "difficulty": "Senior",
+    "question": "What is covariance vs correlation, and when can high correlation mask low covariance?",
+    "answer": "Covariance: Cov(X,Y) = E[(X−μₓ)(Y−μᵧ)] — measures joint variability in original units. Correlation: ρ = Cov(X,Y)/(σₓσᵧ) — standardised, unitless, bounded [−1,1].",
+    "explanation": "High correlation can accompany low covariance when the variances of X or Y are very small (e.g. two highly precise measurements). Conversely, low correlation can mask high covariance when variances are large. In ML: correlation is used for feature selection (scale-invariant); covariance appears in PCA (covariance matrix decomposition). Correlation is linear by definition — two variables can have ρ=0 yet be strongly nonlinearly dependent (e.g. X and X²)."
+  }
+]
