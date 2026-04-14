@@ -28,11 +28,11 @@ struct CardBackView: View {
                             .textCase(.uppercase)
                             .kerning(1.2)
 
-                        Text(card.answer)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Color.theme.textPrimary)
-                            .lineSpacing(4)
-                            .fixedSize(horizontal: false, vertical: true)
+                        FormattedTextView(
+                            text: card.answer,
+                            fontSize: 17,
+                            fontWeight: .semibold
+                        )
                     }
 
                     Divider()
@@ -46,11 +46,12 @@ struct CardBackView: View {
                             .textCase(.uppercase)
                             .kerning(1.2)
 
-                        Text(card.explanation)
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(Color.theme.textPrimary)
-                            .lineSpacing(5)
-                            .fixedSize(horizontal: false, vertical: true)
+                        FormattedTextView(
+                            text: card.explanation,
+                            fontSize: 15,
+                            fontWeight: .regular,
+                            textColor: Color.theme.textSecondary
+                        )
                     }
                 }
                 .padding(.horizontal, 24)

@@ -105,6 +105,7 @@ struct SearchView: View {
 
 private struct CardDetailSheet: View {
     let card: Flashcard
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -115,9 +116,12 @@ private struct CardDetailSheet: View {
 
                 FlashcardView(
                     card: card,
-                    onKnown: { dismiss() },
-                    onReview: { dismiss() },
-                    onSkip: { dismiss() }
+                    onRate: { rating in
+                        SRSEngine.apply(rating: rating, to: card)
+                        StreakManager.recordCardStudied()
+                        try? modelContext.save()
+                        dismiss()
+                    }
                 )
                 .padding(.horizontal, 20)
             }

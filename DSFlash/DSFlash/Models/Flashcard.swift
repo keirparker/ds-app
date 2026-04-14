@@ -14,6 +14,12 @@ final class Flashcard {
     var lastSeenAt: Date?
     var seenCount: Int
 
+    // MARK: - Spaced Repetition (SM-2)
+    var srsInterval: Int        // days until next review
+    var srsEaseFactor: Double   // ease factor (default 2.5, min 1.3)
+    var srsRepetitions: Int     // consecutive correct responses
+    var srsDueDate: Date        // date when next review is due
+
     init(
         id: UUID = UUID(),
         topicRaw: String,
@@ -32,6 +38,10 @@ final class Flashcard {
         self.needsReview = false
         self.lastSeenAt = nil
         self.seenCount = 0
+        self.srsInterval = 1
+        self.srsEaseFactor = 2.5
+        self.srsRepetitions = 0
+        self.srsDueDate = .now
     }
 
     var topic: Topic {

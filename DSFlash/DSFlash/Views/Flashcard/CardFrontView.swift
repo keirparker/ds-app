@@ -27,11 +27,11 @@ struct CardFrontView: View {
                         .textCase(.uppercase)
                         .kerning(1.2)
 
-                    Text(card.question)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color.theme.textPrimary)
-                        .lineSpacing(4)
-                        .fixedSize(horizontal: false, vertical: true)
+                    FormattedTextView(
+                        text: card.question,
+                        fontSize: 18,
+                        fontWeight: .semibold
+                    )
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 24)

@@ -49,6 +49,12 @@
 		AA000043000000000000001A /* leadership.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000043000000000000001B /* leadership.json */; };
 		AA000044000000000000001A /* python_algorithms.json in Resources */ = {isa = PBXBuildFile; fileRef = AA000044000000000000001B /* python_algorithms.json */; };
 		AA000200000000000000001A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA000200000000000000001B /* XCTest.framework */; };
+		AA000301000000000000001A /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000301000000000000001B /* SRSEngine.swift */; };
+		AA000302000000000000001A /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000302000000000000001B /* StreakManager.swift */; };
+		AA000311000000000000001A /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000311000000000000001B /* QuizView.swift */; };
+		AA000321000000000000001A /* InterviewSimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000321000000000000001B /* InterviewSimulationView.swift */; };
+		AA000322000000000000001A /* SimulationResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000322000000000000001B /* SimulationResultsView.swift */; };
+		AA000331000000000000001A /* FormattedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000331000000000000001B /* FormattedTextView.swift */; };
 		AA000201000000000000001A /* FlashcardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000201000000000000001B /* FlashcardTests.swift */; };
 		AA000202000000000000001A /* TopicAndStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000202000000000000001B /* TopicAndStoreTests.swift */; };
 /* End PBXBuildFile section */
@@ -97,6 +103,13 @@
 		AA000044000000000000001B /* python_algorithms.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = python_algorithms.json; sourceTree = "<group>"; };
 		AA000050000000000000001B /* DSFlash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DSFlash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA000200000000000000001B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		AA000301000000000000001B /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngine.swift; sourceTree = "<group>"; };
+		AA000302000000000000001B /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
+		AA000310000000000000001B /* Services */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Services; sourceTree = "<group>"; };
+		AA000311000000000000001B /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
+		AA000321000000000000001B /* InterviewSimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewSimulationView.swift; sourceTree = "<group>"; };
+		AA000322000000000000001B /* SimulationResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationResultsView.swift; sourceTree = "<group>"; };
+		AA000331000000000000001B /* FormattedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedTextView.swift; sourceTree = "<group>"; };
 		AA000201000000000000001B /* FlashcardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardTests.swift; sourceTree = "<group>"; };
 		AA000202000000000000001B /* TopicAndStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicAndStoreTests.swift; sourceTree = "<group>"; };
 		AA000203000000000000001B /* DSFlashTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DSFlashTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,6 +134,7 @@
 				AA000072000000000000001B /* Models */,
 				AA000073000000000000001B /* Data */,
 				AA000074000000000000001B /* Extensions */,
+				AA000300000000000000001B /* Services */,
 				AA000075000000000000001B /* Views */,
 				AA000204000000000000001B /* DSFlashTests */,
 				AA000076000000000000001B /* Frameworks */,
@@ -186,8 +200,18 @@
 				AA000004000000000000001B /* Animation+Flip.swift */,
 				AA000005000000000000001B /* Color+Theme.swift */,
 				AA000006000000000000001B /* View+CardStyle.swift */,
+				AA000331000000000000001B /* FormattedTextView.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		AA000300000000000000001B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA000301000000000000001B /* SRSEngine.swift */,
+				AA000302000000000000001B /* StreakManager.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		AA000075000000000000001B /* Views */ = {
@@ -199,8 +223,27 @@
 				AA000084000000000000001B /* Home */,
 				AA000085000000000000001B /* Progress */,
 				AA000086000000000000001B /* Search */,
+				AA000320000000000000001B /* Quiz */,
+				AA000330000000000000001B /* Simulation */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		AA000320000000000000001B /* Quiz */ = {
+			isa = PBXGroup;
+			children = (
+				AA000311000000000000001B /* QuizView.swift */,
+			);
+			path = Quiz;
+			sourceTree = "<group>";
+		};
+		AA000330000000000000001B /* Simulation */ = {
+			isa = PBXGroup;
+			children = (
+				AA000321000000000000001B /* InterviewSimulationView.swift */,
+				AA000322000000000000001B /* SimulationResultsView.swift */,
+			);
+			path = Simulation;
 			sourceTree = "<group>";
 		};
 		AA000081000000000000001B /* Components */ = {
@@ -436,6 +479,12 @@
 				AA000026000000000000001A /* TopicProgressRow.swift in Sources */,
 				AA000027000000000000001A /* SearchResultRow.swift in Sources */,
 				AA000028000000000000001A /* SearchView.swift in Sources */,
+				AA000301000000000000001A /* SRSEngine.swift in Sources */,
+				AA000302000000000000001A /* StreakManager.swift in Sources */,
+				AA000331000000000000001A /* FormattedTextView.swift in Sources */,
+				AA000311000000000000001A /* QuizView.swift in Sources */,
+				AA000321000000000000001A /* InterviewSimulationView.swift in Sources */,
+				AA000322000000000000001A /* SimulationResultsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
