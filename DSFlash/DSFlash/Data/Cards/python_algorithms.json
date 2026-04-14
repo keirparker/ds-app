@@ -1,0 +1,34 @@
+[
+  {
+    "id": "py-001",
+    "topic": "Python & Algorithms",
+    "difficulty": "Intermediate",
+    "question": "What is the time and space complexity of common sorting algorithms and when would you choose each?",
+    "answer": "Merge sort: O(n log n) time, O(n) space — stable, good for linked lists or when stability matters. Quick sort: O(n log n) average, O(n²) worst, O(log n) space — fast in practice, preferred for arrays. Heap sort: O(n log n) time, O(1) space — not stable but guaranteed O(n log n). Timsort (Python default): O(n log n) worst, O(n) space — highly optimised for real-world data.",
+    "explanation": "Python's built-in sort uses Timsort, a hybrid of merge sort and insertion sort that performs exceptionally well on partially-sorted data (very common in practice). Quick sort is fastest for random arrays due to cache efficiency (in-place, sequential memory access) despite the O(n²) worst case, which is avoided via pivot randomisation. For DS interviews, knowing that Python's sort is stable (preserves relative order of equal elements) and O(n log n) is sufficient; the deeper algorithmic content matters more for software engineering roles."
+  },
+  {
+    "id": "py-002",
+    "topic": "Python & Algorithms",
+    "difficulty": "Intermediate",
+    "question": "Explain Python's GIL and its implications for parallelism in data science workloads.",
+    "answer": "The Global Interpreter Lock (GIL) is a mutex in CPython that allows only one thread to execute Python bytecode at a time. CPU-bound tasks cannot be parallelised with threads. Use multiprocessing (separate processes, no GIL) or libraries like NumPy/pandas which release the GIL during C-extension calls.",
+    "explanation": "The GIL is a CPython implementation detail (not a Python language requirement — Jython and PyPy-STM don't have it). For IO-bound tasks (network requests, file reads), threading works fine because threads release the GIL during IO waits. For CPU-bound computation, use multiprocessing.Pool or joblib (scikit-learn's parallel backend). NumPy operations release the GIL during computation, which is why threaded code can achieve true parallelism when using vectorised NumPy. Python 3.13 introduced per-interpreter GILs as an experimental feature, and a GIL-free mode (PEP 703) is in progress."
+  },
+  {
+    "id": "py-003",
+    "topic": "Python & Algorithms",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between a hash map and a binary search tree for storing and retrieving data?",
+    "answer": "Hash map (dict in Python): O(1) average insert/lookup/delete, O(n) worst case (hash collisions), no ordering. BST: O(log n) average and worst (balanced), maintains sorted order, supports range queries and in-order traversal.",
+    "explanation": "Python's dict is a hash map with open addressing and random probing. Hash maps dominate for fast key-value lookups when ordering doesn't matter. BSTs (via heapq, SortedList from sortedcontainers) are required when you need: elements in sorted order, finding the k-th smallest element, range queries, or predecessor/successor queries. In DS contexts, hash maps power group-by aggregations and join operations internally. Understanding this explains why dict lookups are O(1) but iterating over a dict in a specific key order requires sorting first. Since Python 3.7, dicts maintain insertion order — but this is not sorted order."
+  },
+  {
+    "id": "py-004",
+    "topic": "Python & Algorithms",
+    "difficulty": "Senior",
+    "question": "How would you efficiently find the top-k elements from a large dataset, and what is the optimal time complexity?",
+    "answer": "Use a min-heap of size k. Iterate through all n elements: push to heap if element > heap minimum, then pop. Result is the k largest elements. Time: O(n log k), Space: O(k). This is optimal for streaming/unsorted data. If data is sorted, it's O(k). Python: heapq.nlargest(k, iterable) implements this.",
+    "explanation": "Naive sort-then-slice is O(n log n) — correct but suboptimal. The heap approach is O(n log k), which is significantly better when k << n (e.g., top-10 from 1 billion records). Quickselect (partial quicksort) achieves O(n) average for finding the k-th element but doesn't maintain the top-k in order and has O(n²) worst case. In distributed systems (MapReduce, Spark), top-k is solved with a reduce step that merges k-element heaps from each partition. In NumPy, np.partition(arr, -k)[-k:] is O(n) using introselect and is the fastest for in-memory arrays."
+  }
+]

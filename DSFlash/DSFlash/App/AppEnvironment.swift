@@ -2,9 +2,10 @@ import Foundation
 import Observation
 
 enum StudyMode: String, CaseIterable {
-    case all    = "All Cards"
-    case review = "Needs Review"
-    case unseen = "Unseen"
+    case all      = "All Cards"
+    case dueToday = "Due Today"
+    case review   = "Needs Review"
+    case unseen   = "Unseen"
 }
 
 @Observable

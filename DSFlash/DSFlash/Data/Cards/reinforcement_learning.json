@@ -1,0 +1,66 @@
+[
+  {
+    "id": "rl-001",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Intermediate",
+    "question": "Define the core components of a Markov Decision Process (MDP) and explain the Markov property.",
+    "answer": "An MDP is defined by (S, A, P, R, γ): states S, actions A, transition function P(s'|s,a), reward function R(s,a,s'), and discount factor γ ∈ [0,1). The Markov property states that the future is conditionally independent of the past given the current state.",
+    "explanation": "The Markov property is a critical simplifying assumption — it means the agent only needs to know the current state, not the full history, to make optimal decisions. γ controls how much future rewards are discounted: γ=0 makes the agent myopic, γ→1 makes it far-sighted. The goal of RL is to find a policy π(a|s) that maximises expected cumulative discounted reward: E[Σ γᵗ rₜ]."
+  },
+  {
+    "id": "rl-002",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between model-based and model-free reinforcement learning?",
+    "answer": "Model-based RL learns or uses a model of the environment (transition and reward functions) to plan. Model-free RL learns policies or value functions directly from environment interactions without an explicit model.",
+    "explanation": "Model-based methods (Dyna-Q, MuZero, AlphaZero) are sample-efficient because they can simulate experience using the model, but require learning an accurate model which can be hard in complex environments. Model-free methods (Q-learning, PPO, SAC) are simpler and more robust to model errors but require more real environment samples. In practice, model-based methods excel when environment interactions are expensive (robotics, drug discovery), while model-free is dominant in video games and simulation where samples are cheap."
+  },
+  {
+    "id": "rl-003",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Intermediate",
+    "question": "Explain the exploration-exploitation trade-off and common strategies for managing it.",
+    "answer": "Exploitation uses the current best-known action; exploration tries new actions to potentially discover better ones. Strategies: ε-greedy (random action with probability ε), UCB (optimism under uncertainty), Thompson sampling (Bayesian), and entropy regularisation in policy gradient methods.",
+    "explanation": "Too much exploitation leads to suboptimal policies trapped in local optima; too much exploration wastes samples on already-understood actions. ε-greedy is simple but explores uniformly. UCB adds an exploration bonus proportional to uncertainty (√(log t / n_i)), ensuring all actions are eventually tried. In deep RL, exploration is harder because the state space is vast. Entropy regularisation (used in SAC) adds a term maximising policy entropy, encouraging diversity. Intrinsic motivation (curiosity-driven exploration) is used in sparse-reward environments."
+  },
+  {
+    "id": "rl-004",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Senior",
+    "question": "What is the policy gradient theorem and how does REINFORCE use it?",
+    "answer": "The policy gradient theorem gives ∇_θ J(θ) = E[∇_θ log π_θ(a|s) · Q^π(s,a)]. REINFORCE is the Monte Carlo estimate: it collects complete trajectories, computes returns G_t, and updates θ using the log-probability gradient weighted by the return.",
+    "explanation": "The key insight is the log-derivative trick: ∇_θ π_θ / π_θ = ∇_θ log π_θ, making the gradient estimable from samples. REINFORCE is unbiased but has very high variance because returns from full trajectories vary widely. Baselines (typically the state-value function V(s)) are subtracted from returns to reduce variance without introducing bias: ∇_θ J ∝ (G_t - b(s)) ∇_θ log π. The actor-critic family replaces G_t with bootstrapped value estimates to further reduce variance at the cost of some bias."
+  },
+  {
+    "id": "rl-005",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Senior",
+    "question": "What is Proximal Policy Optimization (PPO) and why is it the dominant policy gradient algorithm?",
+    "answer": "PPO clips the probability ratio between the new and old policy (clip(π_new/π_old, 1-ε, 1+ε)) in the objective, preventing destructively large policy updates. It achieves competitive performance with simpler implementation than TRPO and is stable and sample-efficient across a wide range of tasks.",
+    "explanation": "TRPO's trust region constraint is expensive to compute exactly (requires conjugate gradient). PPO approximates this with a clipped surrogate objective that is much cheaper to implement and parallelise. The clipping stops the policy from moving too far in a single update — if the probability ratio exceeds [1-ε, 1+ε], the gradient is zero. PPO is the workhorse of RLHF (used in ChatGPT training) and robotics. Key hyperparameters: clip range (typically 0.2), number of epochs per batch, and entropy coefficient for exploration."
+  },
+  {
+    "id": "rl-006",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Intermediate",
+    "question": "What is Q-learning and how does deep Q-learning (DQN) extend it to high-dimensional state spaces?",
+    "answer": "Q-learning is an off-policy TD algorithm that learns the action-value function Q(s,a) using the Bellman update: Q(s,a) ← Q(s,a) + α[r + γ max_a' Q(s',a') - Q(s,a)]. DQN replaces the Q-table with a neural network and adds experience replay and a target network for stability.",
+    "explanation": "Tabular Q-learning is infeasible for high-dimensional inputs (pixel images). DQN uses a CNN to approximate Q. Experience replay breaks temporal correlations by sampling random minibatches from a replay buffer. The target network (updated slowly by copying the main network every N steps) prevents the moving target problem — without it, the network chases a target that changes every step, causing instability. DQN famously achieved human-level performance on Atari games and sparked the deep RL era."
+  },
+  {
+    "id": "rl-007",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Senior",
+    "question": "How is RL applied in LLM post-training, specifically in RLHF and GRPO?",
+    "answer": "In RLHF, a reward model trained on human preference pairs scores LLM outputs, and PPO optimises the LLM policy to maximise this reward with a KL penalty against the reference model. GRPO (Group Relative Policy Optimisation) removes the value network, instead using the mean reward of a group of samples as the baseline.",
+    "explanation": "RLHF faces several challenges: reward hacking (the LLM finds outputs that score high but are actually poor), reward model overfitting, and the computational cost of running PPO with a large language model as the policy. The KL penalty prevents the policy from diverging too far from the SFT model. GRPO (used in DeepSeek-R1) simplifies training by eliminating the separate critic network — it samples k responses per prompt, normalises rewards within the group, and uses this as the advantage estimate. This is more stable and cheaper, making it popular for reasoning model training."
+  },
+  {
+    "id": "rl-008",
+    "topic": "Reinforcement Learning",
+    "difficulty": "Intermediate",
+    "question": "What is the credit assignment problem in RL and how do advantage functions address it?",
+    "answer": "The credit assignment problem is determining which actions in a trajectory caused the eventual reward. Advantage A(s,a) = Q(s,a) - V(s) measures how much better action a is compared to the average action in state s, providing a localised signal that is more informative than raw returns.",
+    "explanation": "With sparse rewards and long horizons, a raw return signal tells the agent very little about which specific actions were responsible for success or failure. The advantage function decomposes this: V(s) is the baseline (what the agent expects regardless of action), and A(s,a) isolates the contribution of the specific action. Generalised Advantage Estimation (GAE) interpolates between high-bias/low-variance (TD error) and low-bias/high-variance (Monte Carlo returns) using a λ parameter, controlling the bias-variance trade-off in advantage estimates."
+  }
+]

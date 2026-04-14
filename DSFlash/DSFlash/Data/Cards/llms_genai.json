@@ -1,0 +1,146 @@
+[
+  {
+    "id": "llm-001",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is the Transformer architecture and why did it replace RNNs for sequence modeling?",
+    "answer": "The Transformer uses self-attention to relate all positions in a sequence simultaneously, enabling full parallelisation during training. RNNs process tokens sequentially, creating a bottleneck for long sequences and making gradient flow across many steps difficult.",
+    "explanation": "Self-attention computes a weighted sum of all value vectors, where the weights (attention scores) are derived from query-key dot products scaled by √d_k. This gives every token direct access to every other token in O(1) path length, eliminating the vanishing gradient problem that plagued RNNs on long-range dependencies."
+  },
+  {
+    "id": "llm-002",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "Explain how attention scores are computed in the multi-head self-attention mechanism.",
+    "answer": "Each head projects the input into Q, K, V matrices. Attention weights are computed as softmax(QKᵀ / √d_k). The output is the weighted sum of V vectors. Multiple heads run in parallel, then their outputs are concatenated and projected.",
+    "explanation": "Scaling by √d_k prevents the dot products from growing large in high dimensions, which would push softmax into regions with tiny gradients. Multiple heads allow the model to attend to different representation subspaces simultaneously — one head might focus on syntactic relations while another captures semantic similarity."
+  },
+  {
+    "id": "llm-003",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "What is Rotary Position Embedding (RoPE) and why do models like LLaMA use it instead of learned absolute positions?",
+    "answer": "RoPE encodes position by rotating Q and K vectors by an angle proportional to their position. This makes the attention score between two tokens a function of their relative distance, not absolute positions.",
+    "explanation": "Learned absolute positions don't generalise beyond the training context length. RoPE naturally extends to longer sequences and models relative distance, which is more semantically meaningful (nearby tokens are related regardless of absolute position). It also allows efficient computation — rotation is applied directly to queries and keys, adding no extra parameters. Models with RoPE show better length generalisation and can be extended via interpolation or extrapolation techniques like YaRN."
+  },
+  {
+    "id": "llm-004",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between pre-training, fine-tuning, and RLHF in LLM development?",
+    "answer": "Pre-training learns language structure from massive unlabelled corpora via next-token prediction. Fine-tuning adapts the model to a specific task or format using labelled data. RLHF uses human preference ratings and RL to align model outputs with human values and instruction-following.",
+    "explanation": "Pre-training is expensive and done once; it builds world knowledge and language capability. Supervised fine-tuning is cheaper and shapes the model's behaviour and format. RLHF (specifically PPO on a reward model) further refines helpfulness, harmlessness, and honesty. The combination is what turned GPT-3 into InstructGPT and later ChatGPT. RLHF is sensitive to reward hacking, which is why DPO and GRPO are popular alternatives that skip the explicit reward model."
+  },
+  {
+    "id": "llm-005",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is retrieval-augmented generation (RAG) and when should you use it over fine-tuning?",
+    "answer": "RAG retrieves relevant documents from a vector store at inference time and includes them in the prompt context. Fine-tuning bakes knowledge into weights. Use RAG for frequently-changing information, private data, or when you need citations; use fine-tuning for consistent style, format, or domain-specific reasoning patterns.",
+    "explanation": "Fine-tuning is expensive, requires labelled data, and the knowledge becomes stale as information changes. RAG avoids these issues by staying up to date and providing grounding documents that reduce hallucination. However, RAG adds latency, is sensitive to retrieval quality, and struggles when reasoning requires synthesising many documents. The two approaches are complementary — fine-tune for behaviour/format, RAG for knowledge."
+  },
+  {
+    "id": "llm-006",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "What are the key failure modes of LLMs that matter in production, and how do you mitigate them?",
+    "answer": "Key failure modes: hallucination (confident false statements), prompt injection (adversarial instructions in user input), context window limitations, inconsistency across runs, and sycophancy (telling users what they want to hear).",
+    "explanation": "Hallucination is mitigated by RAG, grounding, and chain-of-thought prompting. Prompt injection is handled by separating system and user content, input validation, and output filtering. Context limits require chunking strategies or hierarchical summarisation. Inconsistency can be reduced by lowering temperature and caching. Sycophancy requires careful RLHF design and explicit feedback diversity. In production, evaluation pipelines and LLM-as-judge metrics are essential for catching regressions."
+  },
+  {
+    "id": "llm-007",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is Low-Rank Adaptation (LoRA) and why is it the dominant fine-tuning method for LLMs?",
+    "answer": "LoRA freezes the pre-trained weights and adds a pair of low-rank matrices (A and B) to each linear layer, so the effective weight update is ΔW = BA where rank r << d. Only these small matrices are trained, reducing trainable parameters by 10–10,000×.",
+    "explanation": "Full fine-tuning of a 70B model requires 70B × 4 bytes of gradient memory — impractical. LoRA's low-rank approximation exploits the observation that weight updates during fine-tuning have a low intrinsic dimensionality. At inference the LoRA weights can be merged into the base weights (zero latency overhead). QLoRA extends this to quantised base models, enabling fine-tuning on consumer GPUs. LoRA adapters are also composable and swappable, making them popular for serving many task-specific variants from one base model."
+  },
+  {
+    "id": "llm-008",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "Explain the difference between greedy decoding, beam search, and sampling-based generation.",
+    "answer": "Greedy: always picks the highest-probability next token. Beam search: maintains k hypotheses at each step, selecting globally more probable sequences. Sampling: draws from the distribution with temperature, top-k, or nucleus (top-p) filtering to introduce controlled randomness.",
+    "explanation": "Greedy is fast but repetitive. Beam search improves quality on tasks with clear correct answers (translation, summarisation) but can be too conservative and 'safe' for open-ended generation. Temperature sampling diversifies outputs but risks incoherence at high temperatures. Top-p (nucleus) sampling restricts the sampling pool to the smallest set of tokens whose cumulative probability exceeds p, balancing diversity and quality. Most chatbots use sampling with low temperature (0.6–0.8) and nucleus filtering."
+  },
+  {
+    "id": "llm-009",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "What is KV-cache and how does it affect LLM inference performance?",
+    "answer": "During autoregressive generation, the Key and Value tensors for all previous tokens are cached and reused at each step. Without caching, attention would recompute these for every token at each step, making inference O(n²) in compute. With caching, each new token requires only one forward pass of attention.",
+    "explanation": "KV-cache trades memory for speed — storing the cache requires O(n × d) memory per layer per sequence. For long contexts or large batch sizes this becomes a bottleneck. Techniques like multi-query attention (MQA), grouped-query attention (GQA), and paged attention (vLLM) reduce KV-cache memory. Cache management is a core systems challenge in serving LLMs efficiently at scale. Understanding this is expected in senior ML engineering interviews."
+  },
+  {
+    "id": "llm-010",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is prompt engineering and what techniques consistently improve LLM output quality?",
+    "answer": "Prompt engineering is the practice of crafting inputs that elicit reliable, accurate, and useful outputs. Key techniques: chain-of-thought (ask the model to reason step by step), few-shot examples, persona/role assignment, output format specification, and decomposition of complex tasks.",
+    "explanation": "Chain-of-thought dramatically improves accuracy on multi-step reasoning by externalising the reasoning process, giving the model 'scratchpad' space. Few-shot examples prime the model's output format and style. Explicit format instructions ('respond in JSON with keys: answer, confidence') reduce parsing failures. Zero-shot prompts work well for capable models on familiar tasks but degrade quickly on novel or multi-step problems. For production systems, prompt engineering is iterated alongside evaluation datasets — never treat prompts as static."
+  },
+  {
+    "id": "llm-011",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "What is Constitutional AI (CAI) and how does it differ from standard RLHF?",
+    "answer": "CAI (Anthropic) uses a set of principles (a 'constitution') to guide model self-critique and revision during SFT, and to generate AI-generated preference data for RL, reducing reliance on expensive human preference labels.",
+    "explanation": "Standard RLHF requires large volumes of human preference comparisons, which are slow and costly to collect. CAI replaces much of this with AI feedback — the model critiques its own responses against constitutional principles, revises them, and these pairs form preference data. This scales better and makes alignment criteria explicit and auditable. It also enables RLAIF (RL from AI Feedback). The trade-off is that the quality of alignment depends on the quality of the constitution and the base model's ability to self-critique accurately."
+  },
+  {
+    "id": "llm-012",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What are the main approaches to evaluating LLM outputs and what are the limitations of each?",
+    "answer": "Approaches: human evaluation (gold standard, expensive), automatic metrics (BLEU, ROUGE — poor correlation with quality on open-ended tasks), LLM-as-judge (scalable, but biased toward verbosity and own outputs), and task-specific benchmarks (MMLU, HumanEval — saturable, train-test contamination risk).",
+    "explanation": "Human evaluation is reliable but doesn't scale and has high inter-annotator variance. BLEU/ROUGE measure n-gram overlap and fail on paraphrase or open-ended generation. LLM-as-judge is increasingly standard but GPT-4 shows known biases: it favours longer, more confident answers and its own outputs. Benchmarks like MMLU are now contaminated in many model training sets. Best practice is a combination: benchmark for tracking progress, LLM-as-judge for rapid iteration, human eval for final release decisions."
+  },
+  {
+    "id": "llm-013",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "How does Flash Attention improve the efficiency of attention computation?",
+    "answer": "Flash Attention reorders attention computation to be IO-aware — it tiles the Q, K, V matrices and computes attention in blocks that fit in SRAM, avoiding writing the full N×N attention matrix to HBM. This reduces memory from O(N²) to O(N) and speeds up wall-clock time 2–4×.",
+    "explanation": "The standard attention implementation materialises the full N×N softmax matrix in GPU HBM, which becomes the bottleneck at long sequences. Flash Attention fuses the softmax, masking, and matrix multiplications into a single kernel, using a numerically stable online softmax computation across tiles. Flash Attention 2 and 3 further improve parallelism across heads and sequence positions. This is now the standard implementation in all major frameworks and is essential knowledge for LLM infrastructure interviews."
+  },
+  {
+    "id": "llm-014",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is the difference between zero-shot, one-shot, and few-shot prompting?",
+    "answer": "Zero-shot: the prompt contains only instructions, no examples. One-shot: one input-output example is included. Few-shot: several examples are provided in-context. More examples generally improve performance on structured tasks but at the cost of tokens in the context window.",
+    "explanation": "Few-shot prompting exploits in-context learning (ICL) — the emergent ability of large models to learn from examples in the prompt without weight updates. ICL performance is sensitive to example ordering, label distribution, and format consistency. For frontier models, well-written zero-shot instructions often match few-shot performance. For smaller models or highly structured tasks (NER, classification), few-shot examples are more valuable. ICL is not equivalent to fine-tuning — the learning doesn't persist across conversations."
+  },
+  {
+    "id": "llm-015",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "Explain model quantisation and the trade-offs between INT8, INT4, and FP16 for LLM inference.",
+    "answer": "Quantisation reduces weight precision: FP16 (2 bytes/param), INT8 (1 byte/param), INT4 (0.5 bytes/param). Lower precision reduces memory and increases throughput but degrades perplexity, especially on tasks requiring precision. INT8 (LLM.int8()) is nearly lossless; INT4 (GPTQ, AWQ) shows measurable quality loss on complex reasoning.",
+    "explanation": "The goal is fitting large models into available GPU memory. A 70B model at FP16 requires ~140 GB; at INT4 it fits in ~35 GB. Quantisation-aware training and post-training quantisation methods like GPTQ, AWQ, and GGUF mitigate quality loss by calibrating on representative data. Activation quantisation is harder than weight quantisation because activations have outliers that are difficult to clip without loss. For production, INT8 weights with FP16 activations (W8A16) is a common sweet spot."
+  },
+  {
+    "id": "llm-016",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is an AI agent and how does tool use extend the capabilities of LLMs?",
+    "answer": "An AI agent is an LLM augmented with the ability to take actions — calling tools (APIs, code execution, web search, databases) and incorporating their results into subsequent reasoning steps. Tool use transforms LLMs from static text generators into dynamic problem-solving systems.",
+    "explanation": "Agents use structured prompting (often with JSON schemas) to select and call tools. The model outputs a tool call, the runtime executes it, and the result is fed back into context. Multi-step agents (ReAct pattern) interleave reasoning and action. Key challenges: reliable JSON output, tool error handling, cost of multi-turn inference, and preventing infinite loops. Production agents need planning, memory (short and long term), and robust evaluation. Tool reliability is typically the weakest link — agents fail when tools return unexpected formats or errors."
+  },
+  {
+    "id": "llm-017",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Senior",
+    "question": "How does speculative decoding work and what speedup does it offer for LLM inference?",
+    "answer": "A small draft model generates k tokens quickly. The large model then verifies all k tokens in one forward pass (parallelisable). Accepted tokens are kept; the first rejected token triggers a correction, and generation continues. Typical speedup: 2–3× at same quality.",
+    "explanation": "The large model must process all k draft tokens anyway to verify them, but doing so in parallel (rather than k sequential forward passes) is far cheaper since attention computation in the forward direction is fully parallelisable. When the draft model is a good predictor (high acceptance rate), most tokens are accepted and the speedup is significant. The method is exact — the output distribution is identical to sampling from the large model alone. Choosing the right draft model size and the number of draft tokens k are key tuning parameters."
+  },
+  {
+    "id": "llm-018",
+    "topic": "LLMs & Generative AI",
+    "difficulty": "Intermediate",
+    "question": "What is embedding similarity search and how is it used in LLM applications?",
+    "answer": "Text is encoded into dense vector embeddings by an embedding model. Similar texts produce vectors close together in embedding space. Nearest-neighbour search (cosine or dot-product similarity) retrieves semantically related documents efficiently using indexes like FAISS, HNSW, or vector databases (Pinecone, Weaviate).",
+    "explanation": "Embedding search is the backbone of RAG pipelines and semantic search products. Embeddings from models like text-embedding-3 or BGE compress semantic meaning into 768–3072 dimensional vectors. Approximate nearest neighbour (ANN) algorithms trade exact accuracy for speed at scale. Chunking strategy (how text is split) and embedding model choice significantly impact retrieval quality. Hybrid search (combining BM25 keyword matching with embedding similarity) often outperforms either alone, especially for precise queries like product SKUs or names."
+  }
+]

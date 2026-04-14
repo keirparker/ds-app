@@ -9,6 +9,9 @@ struct DSFlashApp: App {
         WindowGroup {
             ContentView()
                 .environment(appEnvironment)
+                .task {
+                    await StreakManager.requestPermission()
+                }
         }
         .modelContainer(for: Flashcard.self) { result in
             switch result {

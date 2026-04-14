@@ -7,7 +7,7 @@ struct DeckView: View {
 
     init(topic: Topic? = nil, mode: StudyMode = .all) {
         self.topic = topic
-        self.mode = mode
+        self.mode  = mode
     }
 
     @Query private var allCards: [Flashcard]
@@ -24,9 +24,10 @@ struct DeckView: View {
             let topicMatch = topic == nil || card.topic == topic
             let modeMatch: Bool
             switch mode {
-            case .all:    modeMatch = true
-            case .review: modeMatch = card.needsReview
-            case .unseen: modeMatch = card.seenCount == 0
+            case .all:      modeMatch = true
+            case .dueToday: modeMatch = SRSEngine.isDue(card)
+            case .review:   modeMatch = card.needsReview
+            case .unseen:   modeMatch = card.seenCount == 0
             }
             return topicMatch && modeMatch
         }
@@ -37,25 +38,19 @@ struct DeckView: View {
     }
 
     private var deckTitle: String {
-        if let topic {
-            return "\(topic.emoji) \(topic.rawValue)"
-        }
+        if let topic { return "\(topic.emoji) \(topic.rawValue)" }
         switch mode {
-        case .all:    return "All Cards"
-        case .review: return "Needs Review"
-        case .unseen: return "Unseen Cards"
+        case .all:      return "All Cards"
+        case .dueToday: return "Due Today"
+        case .review:   return "Needs Review"
+        case .unseen:   return "Unseen Cards"
         }
     }
 
-    // MARK: - Stats for completion screen
+    // MARK: - Completion stats
 
-    private var knownCount: Int {
-        cards.filter(\.isKnown).count
-    }
-
-    private var reviewCount: Int {
-        cards.filter(\.needsReview).count
-    }
+    private var knownCount: Int  { cards.filter(\.isKnown).count }
+    private var reviewCount: Int { cards.filter(\.needsReview).count }
 
     // MARK: - Body
 
@@ -68,9 +63,11 @@ struct DeckView: View {
                 Group {
                     if cards.isEmpty {
                         EmptyStateView(
-                            icon: "rectangle.stack.badge.xmark",
-                            title: "No Cards",
-                            message: "There are no flashcards matching this selection.",
+                            icon: "rectangle.stack.badge.checkmark",
+                            title: mode == .dueToday ? "All Caught Up!" : "No Cards",
+                            message: mode == .dueToday
+                                ? "No cards are due for review right now."
+                                : "No flashcards match this selection.",
                             actionLabel: "Go Back",
                             action: { dismiss() }
                         )
@@ -106,27 +103,14 @@ struct DeckView: View {
 
             FlashcardView(
                 card: cards[currentIndex],
-                onKnown: {
+                onRate: { rating in
                     let card = cards[currentIndex]
-                    card.isKnown = true
-                    card.lastSeenAt = Date()
-                    card.seenCount += 1
+                    SRSEngine.apply(rating: rating, to: card)
+                    StreakManager.recordCardStudied()
                     try? modelContext.save()
-                    advanceIndex()
-                },
-                onReview: {
-                    let card = cards[currentIndex]
-                    card.needsReview = true
-                    card.lastSeenAt = Date()
-                    card.seenCount += 1
-                    try? modelContext.save()
-                    advanceIndex()
-                },
-                onSkip: {
                     advanceIndex()
                 }
             )
-            .padding(.horizontal, 20)
 
             Spacer()
         }
@@ -138,50 +122,32 @@ struct DeckView: View {
         VStack(spacing: 28) {
             Spacer()
 
-            // Checkmark circle
             ZStack {
                 Circle()
                     .fill(Color.theme.knownGreen.opacity(0.15))
                     .frame(width: 120, height: 120)
-
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 72, weight: .light))
                     .foregroundStyle(Color.theme.knownGreen)
             }
 
-            // Title
             VStack(spacing: 8) {
                 Text("Deck Complete!")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(Color.theme.textPrimary)
-
                 Text("You've reviewed all \(cards.count) cards")
-                    .font(.system(size: 16, weight: .regular))
+                    .font(.system(size: 16))
                     .foregroundStyle(Color.theme.textSecondary)
             }
 
-            // Stats pills
             HStack(spacing: 16) {
-                StatPill(
-                    label: "Known",
-                    count: knownCount,
-                    color: Color.theme.knownGreen
-                )
-                StatPill(
-                    label: "To Review",
-                    count: reviewCount,
-                    color: Color.theme.reviewAmber
-                )
-                StatPill(
-                    label: "Total",
-                    count: cards.count,
-                    color: Color.theme.textSecondary
-                )
+                StatPill(label: "Known",     count: knownCount,                color: Color.theme.knownGreen)
+                StatPill(label: "To Review", count: reviewCount,               color: Color.theme.reviewAmber)
+                StatPill(label: "Total",     count: cards.count,               color: Color.theme.textSecondary)
             }
 
             Spacer()
 
-            // Actions
             VStack(spacing: 12) {
                 Button {
                     currentIndex = 0
@@ -192,24 +158,16 @@ struct DeckView: View {
                         .foregroundStyle(Color.theme.background)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(accentColor)
-                        )
+                        .background(RoundedRectangle(cornerRadius: 16).fill(accentColor))
                 }
 
-                Button {
-                    dismiss()
-                } label: {
+                Button { dismiss() } label: {
                     Text("Done")
                         .font(.system(size: 17, weight: .medium))
                         .foregroundStyle(Color.theme.textSecondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.theme.surface)
-                        )
+                        .background(RoundedRectangle(cornerRadius: 16).fill(Color.theme.surface))
                 }
             }
             .padding(.horizontal, 24)
@@ -229,7 +187,7 @@ struct DeckView: View {
     }
 }
 
-// MARK: - Supporting views
+// MARK: - StatPill
 
 private struct StatPill: View {
     let label: String
@@ -250,10 +208,7 @@ private struct StatPill: View {
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.theme.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(color.opacity(0.3), lineWidth: 1)
-                )
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(color.opacity(0.3), lineWidth: 1))
         )
     }
 }

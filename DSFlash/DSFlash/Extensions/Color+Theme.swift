@@ -29,15 +29,18 @@ extension Color {
 }
 
 struct ColorTheme {
-    let background     = Color(hex: "#0F0F14")
-    let surface        = Color(hex: "#1C1C26")
+    let background      = Color(hex: "#0F0F14")
+    let surface         = Color(hex: "#1C1C26")
     let surfaceElevated = Color(hex: "#252532")
-    let textPrimary    = Color(hex: "#F0F0F5")
-    let textSecondary  = Color(hex: "#8A8A9F")
-    let separator      = Color(hex: "#2A2A3A")
-    let knownGreen     = Color(hex: "#34D399")
-    let reviewAmber    = Color(hex: "#F97316")
-    let blue           = Color(hex: "#60A5FA")
-    let violet         = Color(hex: "#A78BFA")
-    let gold           = Color(hex: "#FBBF24")
+    let textPrimary     = Color(hex: "#F0F0F5")
+    let textSecondary   = Color(hex: "#8A8A9F")
+    let separator       = Color(hex: "#2A2A3A")
+    let knownGreen      = Color(hex: "#34D399")
+    let reviewAmber     = Color(hex: "#F97316")
+    let blue            = Color(hex: "#60A5FA")
+    let violet          = Color(hex: "#A78BFA")
+    let gold            = Color(hex: "#FBBF24")
+    // Code rendering
+    let codeBackground  = Color(hex: "#161620")
+    let codeForeground  = Color(hex: "#67E8F9")  // cyan — readable on dark bg
 }
